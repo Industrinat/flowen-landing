@@ -31,7 +31,7 @@
       font-size: 1.2rem;
       margin-bottom: 2rem;
     }
-    .email-input {
+    .email-input, .textarea-input {
       padding: 0.75rem;
       width: 80%;
       max-width: 400px;
@@ -39,6 +39,9 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       margin-bottom: 1rem;
+    }
+    .textarea-input {
+      resize: vertical;
     }
     .submit-btn {
       padding: 0.75rem 1.5rem;
@@ -58,11 +61,16 @@
   <img src="logo.png" alt="Flowen Logo" class="logo" />
   <h1>Flowen is Coming Soon</h1>
   <p>Smart CRM Workflows + Lead Generation.<br />Streamline your B2B sales like never before.</p>
+
   <form action="https://formspree.io/f/myzwpajk" method="POST">
     <input type="hidden" name="_next" value="https://flowen.eu/thanks.html" />
-    <input type="email" name="email" class="email-input" placeholder="Enter your email to stay updated" required />
-    <br />
-    <button type="submit" class="submit-btn">Notify Me</button>
+
+    <input type="text" name="name" class="email-input" placeholder="Your name" required /><br />
+    <input type="email" name="email" class="email-input" placeholder="Your email" required /><br />
+    <input type="tel" name="phone" class="email-input" placeholder="Phone (optional)" /><br />
+    <textarea name="message" class="textarea-input" placeholder="Your message" rows="4" required></textarea><br />
+
+    <button type="submit" class="submit-btn">Submit</button>
   </form>
 </body>
 </html>
