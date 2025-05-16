@@ -2,7 +2,42 @@
 import { motion, useAnimationFrame } from "framer-motion";
 import React, { useState, useRef, useEffect } from "react";
 
-// Detaljerad surfare med hår, armar, ögon, etc
+// Funktion som räknar ut y-position på vågen
+function waveY(
+  x: number,
+  t: number,
+  width: number,
+  amplitude = 24,
+  frequency = 0.015,
+  speed = 1,
+  height = 200
+) {
+  return (
+    height -
+    amplitude -
+    10 +
+    Math.sin(frequency * x * (800 / width) + t * speed) * amplitude
+  );
+}
+
+// Funktion som räknar ut vinkeln (rotation) på vågen i grader
+function waveAngle(
+  x: number,
+  t: number,
+  width: number,
+  amplitude = 24,
+  frequency = 0.015,
+  speed = 1,
+  height = 200
+) {
+  const dx = 1;
+  const dy =
+    waveY(x + dx, t, width, amplitude, frequency, speed, height) -
+    waveY(x, t, width, amplitude, frequency, speed, height);
+  return (Math.atan2(dy, dx) * 180) / Math.PI;
+}
+
+// SVG-komponent för surfare med detaljer
 const SurferSVG = ({
   color = "#1976d2",
   skin = "#f8d7b6",
@@ -115,39 +150,6 @@ const SurferSVG = ({
     <path d="M37 21 Q40 24 43 21" stroke="#b56d1b" strokeWidth="1.2" fill="none" />
   </svg>
 );
-
-function waveY(
-  x: number,
-  t: number,
-  width: number,
-  amplitude = 24,
-  frequency = 0.015,
-  speed = 1,
-  height = 200
-) {
-  return (
-    height -
-    amplitude -
-    10 +
-    Math.sin(frequency * x * (800 / width) + t * speed) * amplitude
-  );
-}
-
-function waveAngle(
-  x: number,
-  t: number,
-  width: number,
-  amplitude = 24,
-  frequency = 0.015,
-  speed = 1,
-  height = 200
-) {
-  const dx = 1;
-  const dy =
-    waveY(x + dx, t, width, amplitude, frequency, speed, height) -
-    waveY(x, t, width, amplitude, frequency, speed, height);
-  return (Math.atan2(dy, dx) * 180) / Math.PI;
-}
 
 export default function SurfingScene() {
   const [t, setT] = useState(0);
