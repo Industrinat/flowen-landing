@@ -20,7 +20,6 @@ export default function Home() {
   method="POST"
   className="mt-10 w-full max-w-md bg-white bg-opacity-90 text-black p-6 rounded-xl shadow"
 >
->
   <h2 className="text-xl font-semibold mb-4">Kontakta oss</h2>
 
   <label className="block mb-3">
