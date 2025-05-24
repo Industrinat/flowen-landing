@@ -35,9 +35,9 @@ export default function Home() {
           method="POST"
           className="mt-6 w-full max-w-md bg-white bg-opacity-90 text-black p-6 rounded-xl shadow"
         >
-          <h2 className="text-xl font-semibold mb-4">Kontakta oss</h2>
+          <h2 className="text-xl font-semibold mb-4">Contact</h2>
           <label className="block mb-3">
-            <span className="text-sm font-medium">Namn</span>
+            <span className="text-sm font-medium">Name</span>
             <input
               type="text"
               name="name"
@@ -46,7 +46,7 @@ export default function Home() {
             />
           </label>
           <label className="block mb-3">
-            <span className="text-sm font-medium">E-post</span>
+            <span className="text-sm font-medium">E-mail</span>
             <input
               type="email"
               name="email"
@@ -55,7 +55,7 @@ export default function Home() {
             />
           </label>
           <label className="block mb-4">
-            <span className="text-sm font-medium">Meddelande</span>
+            <span className="text-sm font-medium">Message</span>
             <textarea
               name="message"
               rows={4}
@@ -81,7 +81,7 @@ export default function Home() {
           href="#"
           className="mt-8 px-6 py-3 bg-white text-black font-semibold rounded-xl shadow hover:bg-gray-100 transition"
         >
-          Kom igång
+          Start now
         </a>
       </div>
     </main>
