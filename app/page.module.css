@@ -1,0 +1,16 @@
+.customline {
+  background: linear-gradient(90deg, #818cf8, #4ade80, transparent, #38bdf8, #818cf8);
+  background-size: 400% 100%;
+  background-position: 0% 50%;
+  background-repeat: no-repeat;
+  animation: moveGradientVanish 6s linear infinite;
+  height: 24px;           /* Justera höjd efter smak */
+  width: 400px;           /* Justera bredd efter smak */
+  border-radius: 9999px;  /* Gör linjen helt rund */
+  margin: 1rem auto 0.5rem auto; /* liknande Tailwind mt-4 mb-2 mx-auto */
+}
+
+@keyframes moveGradientVanish {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}

@@ -1,5 +1,6 @@
 import HowItWorks from '../components/HowItWorks'
 import Testimonials from '../components/Testimonials'
+import styles from './page.module.css'   // Importera CSS-modulen!
 
 export default function Home() {
   return (
@@ -21,17 +22,10 @@ export default function Home() {
         </div>
         {/* Rubrik, linje, tagline, knapp */}
         <h1 className="mt-6 text-4xl md:text-6xl font-extrabold text-center drop-shadow-lg leading-tight">
-          Next gen CRM for modern teams
+          Next generation CRM for modern teams
         </h1>
         {/* Animerad linje */}
-        <div
-          className="mx-auto mt-4 mb-2 h-1 w-32 rounded-full"
-          style={{
-            background: "linear-gradient(90deg, #818cf8, #4ade80, transparent, transparent, #38bdf8, #818cf8)",
-            backgroundSize: "400% 100%",
-            animation: "moveGradientVanish 6s linear infinite"
-          }}
-        ></div>
+        <div className={styles.customline}></div>
         <span className="mt-2 text-xl md:text-2xl text-indigo-300 font-semibold tracking-wide block">
           Performance, non stop.
         </span>
