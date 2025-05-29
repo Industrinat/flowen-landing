@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react";
 import { Card, CardHeader } from "../components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 
@@ -121,11 +121,10 @@ export default function HowItWorks() {
             </p>
             {/* Byt ut mot riktig screenshot när du har data! */}
             <img
-              src="https://placehold.co/400x200?text=Company+Data+Preview"
-              alt="Company data preview from Bolagsverket & SCB"
-              className="rounded-lg border mx-auto shadow"
-              style={{ background: "#e2e8f0" }}
-            />
+  src="/bildbolagsverket.png"
+  alt="Company data preview from Bolagsverket & SCB"
+  className="rounded-lg border mx-auto shadow bg-slate-200"
+/>
             <p className="text-xs mt-4 text-slate-500">
               Integration with Bolagsverket &amp; SCB APIs
             </p>
