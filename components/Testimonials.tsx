@@ -98,7 +98,7 @@ export default function Testimonials() {
               </div>
             </CardHeader>
             <CardContent className="pt-6">
-              <p className="italic text-slate-700">&ldquo;{testimonial.content}&rdquo;</p>
+              <p className="italic text-slate-700">&ldquo;{testimonials[activeIndex].content}&rdquo;</p>
             </CardContent>
             <CardFooter>
               <div className="flex justify-center w-full gap-1 mt-2">
