@@ -1,3 +1,4 @@
+import React from "react";
 import HowItWorks from '../components/HowItWorks'
 import Testimonials from '../components/Testimonials'
 import styles from './page.module.css'   // Importera CSS-modulen!
