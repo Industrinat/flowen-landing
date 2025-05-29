@@ -1,10 +1,11 @@
 'use client'
 
-
+import React from "react"; // ← denna behövs för att ESLint ska vara nöjd
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+
 
 type Testimonial = {
   id: number
