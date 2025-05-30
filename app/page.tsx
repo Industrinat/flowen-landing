@@ -82,7 +82,7 @@ export default function Home() {
               type="submit"
               className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
             >
-              Skicka
+              Send
             </button>
           </form>
 
@@ -93,7 +93,7 @@ export default function Home() {
               muted
               loop
               playsInline
-              className="w-full h-full object-cover brightness-[0.5]"
+              className="w-full h-full object-cover brightness-[0.9]"
             >
               <source src="/videos/surfing-background.mp4" type="video/mp4" />
             </video>
