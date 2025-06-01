@@ -1,8 +1,6 @@
-// pages/login.tsx
+'use client';
 import { useState } from 'react'
-import { useRouter } from 'next/router'
-import { supabase } from '../../lib/supabase'
-
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -14,27 +12,23 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      setError(error.message)
+    // 🛑 Enkel dummy-validering – byt mot din egen backend senare
+    if (email === 'admin@flowen.se' && password === 'flowen123') {
+      router.push('/dashboard') // logga in och skicka vidare
     } else {
-      router.push('/dashboard') // ändra till var du vill skicka användaren
+      setError('Fel e-post eller lösenord.')
     }
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-900 to-slate-900 text-white px-4">
       <form onSubmit={handleLogin} className="bg-white bg-opacity-10 p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Log in to Flowen</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Logga in på Flowen</h2>
 
         {error && <p className="mb-4 text-red-400">{error}</p>}
 
         <label className="block mb-4">
-          <span className="block mb-1 text-sm font-semibold">Email</span>
+          <span className="block mb-1 text-sm font-semibold">E-post</span>
           <input
             type="email"
             required
@@ -45,7 +39,7 @@ export default function LoginPage() {
         </label>
 
         <label className="block mb-6">
-          <span className="block mb-1 text-sm font-semibold">Password</span>
+          <span className="block mb-1 text-sm font-semibold">Lösenord</span>
           <input
             type="password"
             required
@@ -59,13 +53,13 @@ export default function LoginPage() {
           type="submit"
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded transition"
         >
-          Log in
+          Logga in
         </button>
 
         <p className="mt-4 text-sm text-center">
-          Don't have an account?{' '}
+          Har du inget konto?{' '}
           <a href="/register" className="text-indigo-300 underline hover:text-indigo-100">
-            Register here
+            Registrera dig
           </a>
         </p>
       </form>
