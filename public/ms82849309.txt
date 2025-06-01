@@ -1,0 +1,5 @@
+{
+  "Description": "Verifieringsfil för domänägarskap för Microsoft 365 – placera i webbplatsens rot",
+  "Domain": "flowen.eu",
+  "Id": "be17d48d-46bf-449a-913a-64a1c68945ed"
+}
