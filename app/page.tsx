@@ -55,6 +55,25 @@ export default function Home() {
           <Testimonials />
         </div>
 
+        {/* Flowen Talks: Videopoddsektion */}
+        <section className="w-full py-16 bg-gradient-to-b from-slate-950 via-indigo-950 to-indigo-900 text-white">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">🎙 Flowen Talks</h2>
+            <p className="text-lg md:text-xl text-indigo-200 mb-8">
+              Short, visual episodes where we share what drives Flowen — starting with what matters most: your data.
+            </p>
+            <div className="relative pt-[56.25%] rounded-xl overflow-hidden shadow-2xl">
+              <iframe
+                src="https://player.vimeo.com/video/1089666568?h=a5282fb83b&badge=0&autopause=0&player_id=0&app_id=58479"
+                frameBorder="0"
+                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+                title="Flowen Talks – Ep. 01: The Heart of Flowen"
+                className="absolute top-0 left-0 w-full h-full"
+              ></iframe>
+            </div>
+          </div>
+        </section>
+
         {/* Kontaktformulär + Surfvideo */}
         <div className="mt-16 flex flex-col md:flex-row w-full max-w-6xl mx-auto gap-8">
           {/* Formulär */}
