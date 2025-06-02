@@ -41,9 +41,9 @@ export default function Home() {
           <div className="max-w-3xl mx-auto px-4">
             <div className="relative pt-[56.25%]">
               <iframe
-                src="https://player.vimeo.com/video/1089183631?h=ac1a0b2140&badge=0&autopause=0&player_id=0&app_id=58479"
+                src="https://player.vimeo.com/video/1089639271?h=8ff109a510&badge=0&autopause=0&player_id=0&app_id=58479"
                 allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                title="Flowen Video"
+                title="Flowen Intro"
                 className="absolute top-0 left-0 w-full h-full rounded-xl shadow-xl"
               ></iframe>
             </div>
