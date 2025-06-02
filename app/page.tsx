@@ -2,6 +2,7 @@ import React from "react";
 import HowItWorks from '../components/HowItWorks';
 import Testimonials from '../components/Testimonials';
 import styles from './page.module.css';
+import { BarChart3, Users, Clock } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -50,12 +51,50 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Dashboard Preview */}
+        <section className="w-full py-20 bg-gradient-to-b from-indigo-900 via-indigo-950 to-slate-950 text-white">
+          <div className="max-w-6xl mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Insights you can act on
+            </h2>
+            <p className="text-lg text-indigo-300 mb-12 max-w-2xl mx-auto">
+              Flowen helps you see patterns across projects, clients, and teams — so you can make smarter decisions, faster.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-white/10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
+                <div className="flex items-center justify-center mb-4">
+                  <BarChart3 className="w-8 h-8 text-green-400" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Open Deals</h3>
+                <p className="text-4xl font-bold text-green-400 mb-1">37</p>
+                <p className="text-sm text-indigo-200">↑ 12% this month</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
+                <div className="flex items-center justify-center mb-4">
+                  <Users className="w-8 h-8 text-yellow-400" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Client Activity</h3>
+                <p className="text-4xl font-bold text-yellow-400 mb-1">128</p>
+                <p className="text-sm text-indigo-200">Last 7 days</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
+                <div className="flex items-center justify-center mb-4">
+                  <Clock className="w-8 h-8 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Avg. Response Time</h3>
+                <p className="text-4xl font-bold text-blue-400 mb-1">1h 45m</p>
+                <p className="text-sm text-indigo-200">Across all leads</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Testimonials */}
         <div className="mt-16 w-full flex justify-center">
           <Testimonials />
         </div>
 
-        {/* Flowen Talks: Videopoddsektion */}
+        {/* Flowen Talks */}
         <section className="w-full py-16 bg-gradient-to-b from-slate-950 via-indigo-950 to-indigo-900 text-white">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">🎙 Flowen Talks</h2>
@@ -111,6 +150,18 @@ export default function Home() {
                   className="mt-1 w-full border px-3 py-2 rounded focus:outline-none focus:ring"
                 ></textarea>
               </label>
+              <label className="block mb-4 text-left">
+                <input
+                  type="checkbox"
+                  name="gdpr_consent"
+                  required
+                  className="mr-2"
+                />
+                <span className="text-sm">
+                  I agree that my personal data will be processed solely for the purpose of contacting me about Flowen. Read our
+                  <a href="/privacy-policy" className="underline text-indigo-600 hover:text-indigo-400 ml-1">privacy policy</a>.
+                </span>
+              </label>
               <button
                 type="submit"
                 className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
@@ -118,12 +169,6 @@ export default function Home() {
                 Send
               </button>
             </form>
-
-            {/* GDPR-info */}
-            <p className="text-xs text-gray-300 mt-4 text-center px-2">
-              By submitting this form, you agree that we process your personal data solely for contacting you about Flowen. We will email you no more than once per month. Your data will not be stored or used for any other purpose. If you become a customer, relevant laws such as bookkeeping legislation may apply.
-              <a href="/privacy-policy" className="underline text-indigo-300 ml-1 hover:text-indigo-100">Read more</a>.
-            </p>
           </div>
 
           {/* Surfvideo */}
