@@ -1,0 +1,23 @@
+{
+  "name": "flowen-landing",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -n \"FRONTEND,BACKEND\" -c \"cyan,green\" \"npm run dev --prefix flowen-site\" \"node ../flowen-backend/app.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/industrinat/flowen-landing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/industrinat/flowen-landing/issues"
+  },
+  "homepage": "https://github.com/industrinat/flowen-landing#readme",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
