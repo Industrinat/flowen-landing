@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Paperclip } from "lucide-react";
 
 export default function DemoUpload() {
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null); // ✅ Type fix
   const [uploading, setUploading] = useState(false);
   const [url, setUrl] = useState("");
 
@@ -60,7 +60,7 @@ export default function DemoUpload() {
         <input
           type="file"
           id="hiddenFileInput"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="hidden"
         />
 
