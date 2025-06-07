@@ -1,3 +1,4 @@
+import DemoUpload from "../components/DemoUpload";
 import React from "react";
 import HowItWorks from '../components/HowItWorks';
 import Testimonials from '../components/Testimonials';
@@ -32,6 +33,10 @@ export default function Home() {
           Start now
         </a>
       </header>
+{/* 🔽 Testa Flowen utan konto */}
+<div className="mt-24 w-full flex justify-center">
+  <DemoUpload />
+</div>
 
       {/* Innehåll */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 py-12">

@@ -39,3 +39,39 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+uploads/
+# Node-modules (ska aldrig pushas)
+node_modules/
+
+# Byggfiler
+.next/
+dist/
+out/
+
+# Miljöfiler
+.env
+.env.local
+.env.*.local
+
+# Operativsystem/IDE-filer
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# LFS-Blockering – skydda mot tunga filer
+*.exe
+*.iso
+*.tar
+*.zip
+*.gif
+*.mp4
+*.mov
+*.avi
+*.7z
+
+# Git backup
+*.bak
+*.old
+*.tmp
+
