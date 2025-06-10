@@ -1,108 +1,299 @@
 "use client";
-import { useState } from "react";
-import { Paperclip } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Paperclip, X } from "lucide-react";
 
 export default function DemoUpload() {
-  const [file, setFile] = useState<File | null>(null); // ✅ Type fix
+  const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [url, setUrl] = useState("");
+  const [uploaded, setUploaded] = useState(false);
+  const [fileUrls, setFileUrls] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedMarketing, setAcceptedMarketing] = useState(false);
 
-  const handleFileSelect = () => {
-    document.getElementById("hiddenFileInput")?.click();
-  };
+  const [senderName, setSenderName] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [sendStatus, setSendStatus] = useState("");
 
-  const handleUpload = async () => {
-    if (!file) {
-      alert("Please select a file first.");
+  // Läs verifieringsstatus direkt från URL vid sidladdning
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const verified = urlParams.get("verified");
+    const emailParam = urlParams.get("email");
+
+    if (verified === "true" && emailParam) {
+      setIsVerified(true);
+      setEmail(emailParam);
+      setEmailSent(true);
+      setTimeout(() => {
+        window.history.replaceState({}, document.title, "/upload");
+      }, 2000);
+    }
+  }, []);
+
+  // Polling: kontrollera om e-post verifierats
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (emailSent && !isVerified) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch(`http://localhost:3001/check-verification?email=${email}`);
+          const data = await res.json();
+          if (data.verified) {
+            setIsVerified(true);
+            clearInterval(interval);
+          }
+        } catch (err) {
+          console.error("Verification check failed", err);
+        }
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [emailSent, isVerified, email]);
+
+  const handleEmailSubmit = async () => {
+    if (!email.includes("@") || !acceptedTerms) {
+      setEmailError("Please enter a valid email address and accept the terms.");
       return;
     }
 
-    setUploading(true);
-
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("http://localhost:3001/upload", {
+      const res = await fetch("http://localhost:3001/register", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
-      setUrl(data.url);
+      if (data.message.includes("success")) {
+        setEmailSent(true);
+        setEmailError("");
+      } else {
+        setEmailError("There was an issue sending the email. Please try again.");
+      }
+    } catch {
+      setEmailError("There was an error sending the email.");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const selectedFiles = Array.from(e.target.files);
+    setFiles((prev) => [...prev, ...selectedFiles]);
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const confirmUpload = async () => {
+    if (files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const urls: string[] = [];
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("http://localhost:3001/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        urls.push(data.url);
+      }
+
+      setFileUrls(urls);
+      setUploaded(true);
     } catch (err) {
-      alert("An error occurred during upload.");
+      alert("Upload failed.");
     } finally {
       setUploading(false);
     }
   };
 
+  const sendEmailWithLinks = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/send-links", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderName,
+          recipientEmail,
+          fileUrls,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setSendStatus("✅ Email sent successfully!");
+      } else {
+        setSendStatus("❌ Failed to send email.");
+      }
+    } catch (err) {
+      console.error(err);
+      setSendStatus("❌ Error sending email.");
+    }
+  };
+
   return (
     <div className="p-6 max-w-md mx-auto mt-10 border rounded-xl shadow bg-white text-black">
-      <h2 className="text-2xl font-bold mb-6 text-center">Try Flowen Without an Account</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Share Files Free with Flowen</h2>
 
-      {/* STEP 1 */}
-      <div className="mb-4">
-        <p className="font-semibold text-sm mb-2 hover:underline underline-offset-4 cursor-default transition">
-          STEP 1: Upload File
-        </p>
-
-        <button
-          onClick={handleFileSelect}
-          className="w-full flex items-center justify-center gap-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          <Paperclip className="w-5 h-5" />
-          <span className="hover:underline underline-offset-2">
-            {file ? "Change File" : "Select File"}
-          </span>
-        </button>
-
-        <input
-          type="file"
-          id="hiddenFileInput"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="hidden"
-        />
-
-        {file && (
-          <p className="mt-2 text-sm text-gray-700">
-            Selected: <span className="font-medium">{file.name}</span>
-          </p>
-        )}
-
-        <p className="text-xs text-gray-500 text-center mt-2">
-          Accepted formats: Most file types including CAD, PDF, Word, Excel, code files, etc.
-        </p>
-      </div>
-
-      {/* STEP 2 */}
-      <div className="mb-6">
-        <p className="font-semibold text-sm mb-2 hover:underline underline-offset-4 cursor-default transition">
-          STEP 2: Confirm Upload
-        </p>
-        <button
-          onClick={handleUpload}
-          className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-          disabled={uploading}
-        >
-          <span className="hover:underline underline-offset-2">
-            {uploading ? "Uploading..." : "Confirm Upload"}
-          </span>
-        </button>
-      </div>
-
-      {/* RESULT */}
-      {url && (
-        <div className="text-center mt-4">
-          <p className="text-green-700 font-semibold mb-2">File uploaded successfully!</p>
-          <a
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded hover:underline"
+      {!emailSent && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2">Step 1: Enter your email</h3>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-3 py-2 border rounded"
+            placeholder="Enter your email"
+          />
+          <div className="mt-4 space-y-2 text-sm">
+            <label className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                I agree that Flowen may temporarily store my email for delivery and verification.
+              </span>
+            </label>
+            <label className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={acceptedMarketing}
+                onChange={(e) => setAcceptedMarketing(e.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                I want to receive updates from Flowen (max 1/month).
+              </span>
+            </label>
+          </div>
+          <button
+            onClick={handleEmailSubmit}
+            className="w-full mt-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            View uploaded file
-          </a>
+            Send Verification Email
+          </button>
+          {emailError && <p className="text-red-600 mt-3 text-sm">{emailError}</p>}
+        </div>
+      )}
+
+      {emailSent && !isVerified && (
+        <p className="text-yellow-700 text-center mb-6">📩 Please verify your email to continue…</p>
+      )}
+
+      {isVerified && !uploaded && (
+        <>
+          <p className="text-green-700 text-center mb-6">✅ Email verified!</p>
+          <h3 className="text-lg font-semibold mb-2">Step 2: Upload your file(s)</h3>
+
+          <div className="mb-4">
+            <button
+              onClick={() => document.getElementById("hiddenFileInput")?.click()}
+              className="w-full flex items-center justify-center gap-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              <Paperclip className="w-5 h-5" />
+              <span>{files.length > 0 ? "Add More Files" : "Select Files"}</span>
+            </button>
+            <input
+              type="file"
+              id="hiddenFileInput"
+              className="hidden"
+              onChange={handleFileChange}
+              multiple
+            />
+          </div>
+
+          {files.length > 0 && (
+            <div className="mb-4 space-y-2">
+              {files.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between border px-3 py-2 rounded bg-gray-100"
+                >
+                  <span className="truncate">{file.name}</span>
+                  <button
+                    onClick={() => removeFile(index)}
+                    className="text-red-600 hover:text-red-800"
+                    title="Remove"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={confirmUpload}
+                className="w-full mt-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                disabled={uploading}
+              >
+                {uploading ? "Uploading..." : "Confirm Upload"}
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {uploaded && (
+        <div className="text-center">
+          <h3 className="text-2xl font-bold mb-4">Step 3: Share your file(s)</h3>
+          <p className="text-gray-700 mb-6">Your files have been uploaded. Share the link(s) below or send them via email:</p>
+
+          <div className="space-y-4 mb-6">
+            {fileUrls.map((url, idx) => (
+              <div key={idx} className="flex items-center justify-between gap-2 border px-3 py-2 rounded bg-gray-100">
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="truncate text-blue-700 text-sm"
+                >
+                  {url}
+                </a>
+                <button
+                  onClick={() => navigator.clipboard.writeText(url)}
+                  className="text-sm text-white bg-blue-600 px-3 py-1 rounded hover:bg-blue-700"
+                >
+                  Copy
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-4 text-left">
+            <input
+              type="text"
+              placeholder="Your name"
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+            />
+            <input
+              type="email"
+              placeholder="Recipient's email"
+              value={recipientEmail}
+              onChange={(e) => setRecipientEmail(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+            />
+            <button
+              onClick={sendEmailWithLinks}
+              className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Send files via email
+            </button>
+            {sendStatus && <p className="text-center text-sm mt-2">{sendStatus}</p>}
+          </div>
         </div>
       )}
     </div>
