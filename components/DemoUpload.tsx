@@ -40,7 +40,9 @@ export default function DemoUpload() {
     if (emailSent && !isVerified) {
       interval = setInterval(async () => {
         try {
-          const res = await fetch(`http://localhost:3001/check-verification?email=${email}`);
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/check-verification?email=${email}`
+          );
           const data = await res.json();
           if (data.verified) {
             setIsVerified(true);
@@ -61,14 +63,17 @@ export default function DemoUpload() {
     }
 
     try {
-      const res = await fetch("http://localhost:3001/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await res.json();
-      if (data.message.includes("success")) {
+      if (data.message?.includes("success")) {
         setEmailSent(true);
         setEmailError("");
       } else {
@@ -100,10 +105,13 @@ export default function DemoUpload() {
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch("http://localhost:3001/upload", {
-          method: "POST",
-          body: formData,
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
         const data = await res.json();
         urls.push(data.url);
@@ -120,15 +128,18 @@ export default function DemoUpload() {
 
   const sendEmailWithLinks = async () => {
     try {
-      const res = await fetch("http://localhost:3001/send-links", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          senderName,
-          recipientEmail,
-          fileUrls,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/send-links`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            senderName,
+            recipientEmail,
+            fileUrls,
+          }),
+        }
+      );
 
       const data = await res.json();
       if (data.success) {
