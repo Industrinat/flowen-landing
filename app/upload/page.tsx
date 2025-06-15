@@ -1,6 +1,6 @@
 "use client";
-import DemoUpload from "@/components/DemoUpload";
+import { FlowenUploadFlow } from "@/components/FlowenUploadFlow"; // Named import
 
 export default function UploadPage() {
-  return <DemoUpload />;
+  return <FlowenUploadFlow />; // Hela flödet med alla steg
 }
