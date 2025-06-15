@@ -2,11 +2,12 @@ import React from 'react';
 import DownloadPage from './DownloadPage';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function Page({ params }: PageProps) {
-  return <DownloadPage id={params.id} />;
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+  return <DownloadPage id={id} />;
 }
