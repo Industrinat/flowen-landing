@@ -2,7 +2,11 @@
 
 import { useState } from 'react';
 
-export function FlowenEmailVerification() {
+interface FlowenEmailVerificationProps {
+  onEmailSent?: (email: string) => void;
+}
+
+export function FlowenEmailVerification({ onEmailSent }: FlowenEmailVerificationProps = {}) {
   const [email, setEmail] = useState('');
   const [acceptNewsletter, setAcceptNewsletter] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +50,11 @@ export function FlowenEmailVerification() {
         setMessage(`Verification email sent! We've sent a verification link to: ${email}`);
         setEmail('');
         setAcceptNewsletter(false);
+        
+        // Kalla callback om den finns
+        if (onEmailSent) {
+          onEmailSent(email);
+        }
       } else {
         setError(data.error || 'Failed to send verification email');
       }
