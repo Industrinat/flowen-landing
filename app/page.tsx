@@ -33,6 +33,7 @@ export default function Home() {
           Start now
         </a>
       </header>
+
 {/* 🔽 Testa Flowen utan konto */}
 <div className="mt-24 w-full flex justify-center">
   <DemoUpload />
