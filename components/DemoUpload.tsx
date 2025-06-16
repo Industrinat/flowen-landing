@@ -265,7 +265,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     );
   }
 
-  // Step 2: Email Sent
+  // Step 2: Email Sent - SÄKER VERSION
   if (requireEmailVerification && step === 2) {
     return (
       <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 text-center">
@@ -279,12 +279,11 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
         <p className="text-sm text-white/70 mb-8">
           Click the link in your email to continue to file upload.
         </p>
-        <button 
-          onClick={() => setStep(3)}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 shadow-lg"
-        >
-          I've verified my email
-        </button>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
+        <p className="text-sm text-white/60">Waiting for email verification...</p>
+        <p className="text-xs text-white/40 mt-2">
+          You must click the link in your email to proceed
+        </p>
       </div>
     );
   }
