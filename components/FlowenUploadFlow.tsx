@@ -27,11 +27,6 @@ export function FlowenUploadFlow() {
     setStep(2); // Gå till "email sent" steg
   };
 
-  const handleVerificationComplete = () => {
-    setIsVerified(true);
-    setStep(3); // Gå till upload
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-16">
@@ -55,7 +50,7 @@ export function FlowenUploadFlow() {
             </div>
           )}
 
-          {/* Steg 2: E-post skickad */}
+          {/* Steg 2: E-post skickad - SÄKER VERSION */}
           {step === 2 && (
             <div className="bg-white rounded-lg shadow-lg p-8 text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -68,21 +63,20 @@ export function FlowenUploadFlow() {
               <p className="text-sm text-gray-500 mb-6">
                 Click the link in your email to continue to file upload.
               </p>
-              <button 
-                onClick={handleVerificationComplete}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
-              >
-                I've verified my email
-              </button>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-sm text-gray-400">Waiting for email verification...</p>
+              <p className="text-xs text-gray-300 mt-2">
+                You must click the link in your email to proceed
+              </p>
             </div>
           )}
 
-          {/* Steg 3: Filuppladdning */}
+          {/* Steg 3: Filuppladdning - ENDAST efter riktig verifiering */}
           {step === 3 && isVerified && (
             <div>
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Step 2: Upload Your File</h2>
-                <p className="text-gray-600">Verified: {userEmail}</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Step 2: Upload Your Files</h2>
+                <p className="text-gray-600">✅ Verified: {userEmail}</p>
               </div>
               <DemoUpload userEmail={userEmail} />
             </div>
