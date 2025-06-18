@@ -23,12 +23,12 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
   const [acceptNewsletter, setAcceptNewsletter] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   // Upload states
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadResults, setUploadResults] = useState<UploadResponse[]>([]);
-  
+
   // Send form states
   const [senderName, setSenderName] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
@@ -40,7 +40,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
       const urlParams = new URLSearchParams(window.location.search);
       const verified = urlParams.get('verified');
       const emailParam = urlParams.get('email');
-      
+    
       if (verified === 'true' && emailParam) {
         setEmail(emailParam);
         setStep(3);
@@ -54,7 +54,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+  
     if (!email) {
       setError('Please enter your email address');
       return;
@@ -69,8 +69,8 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     setError('');
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    
       const response = await fetch(`${apiUrl}/send-verification`, {
         method: 'POST',
         headers: {
@@ -129,13 +129,13 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     const results: UploadResponse[] = [];
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    
       for (const file of selectedFiles) {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch(`${apiUrl}/upload`, {
+        const response = await fetch(`${apiUrl}/api/upload`, {
           method: 'POST',
           body: formData,
         });
@@ -161,7 +161,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
 
   const handleSendFiles = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+  
     if (!senderName || !recipientEmail) {
       setError('Please fill in your name and recipient email');
       return;
@@ -176,9 +176,9 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     setError('');
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-      
-      const response = await fetch(`${apiUrl}/send-files`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    
+      const response = await fetch(`${apiUrl}/api/send-files`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -219,7 +219,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
           <h2 className="text-3xl font-bold text-white mb-3">Share Files Free with Flowen</h2>
           <p className="text-indigo-200">Enter your email to get started</p>
         </div>
-        
+      
         <form onSubmit={handleEmailSubmit} className="space-y-6">
           <div>
             <input
@@ -297,7 +297,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
             <p className="text-sm text-green-400">✅ Verified: {email || userEmail}</p>
           </div>
         )}
-        
+      
         <div className="text-center mb-8">
           <h2 className="text-4xl font-bold text-white mb-4">
             Share Files Free with Flowen
@@ -337,7 +337,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
                 Remove all
               </button>
             </div>
-            
+          
             <div className="space-y-3 mb-6">
               {selectedFiles.map((file, index) => (
                 <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-white/20">
@@ -363,7 +363,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
                 <Plus className="h-5 w-5" />
                 Upload more files
               </button>
-              
+            
               <button
                 onClick={confirmUpload}
                 disabled={uploading}
@@ -465,7 +465,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
             >
               Back to files
             </button>
-            
+          
             <button
               type="submit"
               disabled={sending}
