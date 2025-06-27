@@ -1,3 +1,4 @@
+import { EmailWithProTips } from "../components/EmailWithProTips";
 import DemoUpload from "../components/DemoUpload";
 import React from "react";
 import HowItWorks from '../components/HowItWorks';
@@ -8,7 +9,6 @@ import { BarChart3, Users, Clock } from 'lucide-react';
 export default function Home() {
   return (
     <main className="relative w-full min-h-screen overflow-hidden text-white bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950">
-      {/* Header */}
       <header className="flex flex-col items-center justify-center pt-16 pb-8">
         <div className="relative flex items-center justify-center mb-4" style={{ height: 160 }}>
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-28 bg-white rounded-3xl shadow-2xl z-0" />
@@ -20,30 +20,20 @@ export default function Home() {
           />
         </div>
         <h1 className="mt-6 text-4xl md:text-6xl font-extrabold text-center drop-shadow-lg leading-tight">
-          Next generation CRM for modern teams
+          Projects and CRM for modern teams
         </h1>
         <div className={styles.customline}></div>
-        <span className="mt-2 text-xl md:text-2xl text-indigo-300 font-semibold tracking-wide block">
+        <span className="mt-2 text-l md:text-2xl text-indigo-300 font-semibold tracking-wide block">
           Performance, non stop.
         </span>
-        <a
-          href="#"
-          className="mt-8 px-8 py-4 bg-white text-black font-bold rounded-2xl shadow-xl hover:bg-gray-100 transition"
-        >
-          Start now
-        </a>
       </header>
 
-{/* 🔽 Testa Flowen utan konto */}
-<div className="mt-24 w-full flex justify-center">
-  <DemoUpload />
-</div>
+      <div className="mt-24 w-full flex justify-center">
+        <EmailWithProTips />
+      </div>
 
-      {/* Innehåll */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 py-12">
         <HowItWorks />
-
-        {/* Vimeo huvudvideo i mindre format */}
         <section className="w-full py-8 mt-12">
           <div className="max-w-3xl mx-auto px-4">
             <div className="relative pt-[56.25%]">
@@ -56,8 +46,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Dashboard Preview */}
         <section className="w-full py-20 bg-gradient-to-b from-indigo-900 via-indigo-950 to-slate-950 text-white">
           <div className="max-w-6xl mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
@@ -94,13 +82,9 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Testimonials */}
         <div className="mt-16 w-full flex justify-center">
           <Testimonials />
         </div>
-
-        {/* Flowen Talks */}
         <section className="w-full py-16 bg-gradient-to-b from-slate-950 via-indigo-950 to-indigo-900 text-white">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">🎙 Flowen Talks</h2>
@@ -118,10 +102,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Kontaktformulär + Surfvideo */}
         <div className="mt-16 flex flex-col md:flex-row w-full max-w-6xl mx-auto gap-8">
-          {/* Formulär */}
           <div className="w-full md:w-1/2">
             <form
               action="https://formspree.io/f/myzwpajk"
@@ -154,7 +135,7 @@ export default function Home() {
                   rows={4}
                   required
                   className="mt-1 w-full border px-3 py-2 rounded focus:outline-none focus:ring"
-                ></textarea>
+                />
               </label>
               <label className="block mb-4 text-left">
                 <input
@@ -176,8 +157,6 @@ export default function Home() {
               </button>
             </form>
           </div>
-
-          {/* Surfvideo */}
           <div className="w-full md:w-1/2 rounded-xl overflow-hidden shadow-lg">
             <video
               autoPlay
