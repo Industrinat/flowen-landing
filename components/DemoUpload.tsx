@@ -23,7 +23,12 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
   const [acceptNewsletter, setAcceptNewsletter] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+<<<<<<< HEAD
 
+=======
+  const [isDragOver, setIsDragOver] = useState(false);
+  
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
   // Upload states
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -34,6 +39,14 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
   const [recipientEmail, setRecipientEmail] = useState('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+
+  // Smart API URL detection
+  const getApiUrl = () => {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:3001';
+    }
+    return 'https://api.flowen.eu';
+  };
 
   useEffect(() => {
     if (requireEmailVerification) {
@@ -69,8 +82,13 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     setError('');
 
     try {
+<<<<<<< HEAD
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     
+=======
+      const apiUrl = getApiUrl();
+      
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
       const response = await fetch(`${apiUrl}/send-verification`, {
         method: 'POST',
         headers: {
@@ -95,6 +113,25 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Drag & Drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    setSelectedFiles(prev => [...prev, ...droppedFiles]);
+    setError('');
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,8 +166,13 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     const results: UploadResponse[] = [];
 
     try {
+<<<<<<< HEAD
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     
+=======
+      const apiUrl = getApiUrl();
+      
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
       for (const file of selectedFiles) {
         const formData = new FormData();
         formData.append('file', file);
@@ -176,9 +218,15 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     setError('');
 
     try {
+<<<<<<< HEAD
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     
       const response = await fetch(`${apiUrl}/api/send-files`, {
+=======
+      const apiUrl = getApiUrl();
+      
+      const response = await fetch(`${apiUrl}/send-files`, {
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -211,14 +259,14 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     }
   };
 
-  // Step 1: Email Verification
+  // Step 1: Email Verification - UTAN RUBRIK
   if (requireEmailVerification && step === 1) {
     return (
-      <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
+      <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-3">Share Files Free with Flowen</h2>
-          <p className="text-indigo-200">Enter your email to get started</p>
+          <p className="text-indigo-200">Enter your email to get started with file sharing</p>
         </div>
+<<<<<<< HEAD
       
         <form onSubmit={handleEmailSubmit} className="space-y-6">
           <div>
@@ -250,45 +298,82 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
           {error && (
             <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-4">
               <p className="text-red-200 text-sm">{error}</p>
+=======
+        
+        <div className="max-w-md mx-auto">
+          <form onSubmit={handleEmailSubmit} className="space-y-6">
+            <div>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-4 bg-white/20 backdrop-blur border border-white/30 rounded-xl text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                placeholder="Enter your email"
+                required
+              />
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg"
-          >
-            {isLoading ? 'Sending...' : 'Start File Sharing'}
-          </button>
-        </form>
+            <div className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                id="newsletter"
+                checked={acceptNewsletter}
+                onChange={(e) => setAcceptNewsletter(e.target.checked)}
+                className="mt-1 h-5 w-5 text-blue-500 bg-white/20 border-white/30 rounded focus:ring-blue-400"
+                required
+              />
+              <label htmlFor="newsletter" className="text-sm text-white/90 leading-relaxed">
+                I agree that Flowen may store my email for file sharing and accept receiving updates (max 1/month).
+              </label>
+            </div>
+
+            {error && (
+              <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-4">
+                <p className="text-red-200 text-sm">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg"
+            >
+              {isLoading ? 'Sending...' : 'Start File Sharing'}
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
 
-  // Step 2: Email Sent - SÄKER VERSION
+  // Step 2: Email Sent - UTAN RUBRIK
   if (requireEmailVerification && step === 2) {
     return (
-      <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 text-center">
-        <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-4xl">📧</span>
+      <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
+        <div className="max-w-md mx-auto text-center">
+          <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">📧</span>
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-4">Check Your Email!</h2>
+          <p className="text-indigo-200 mb-6">
+            We've sent a verification link to: <strong className="text-white">{email}</strong>
+          </p>
+          <p className="text-sm text-white/70 mb-8">
+            Click the link in your email to continue to file upload.
+          </p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <p className="text-sm text-white/60">Waiting for email verification...</p>
+          <p className="text-xs text-white/40 mt-2">
+            You must click the link in your email to proceed
+          </p>
         </div>
-        <h2 className="text-3xl font-bold text-white mb-4">Check Your Email!</h2>
-        <p className="text-indigo-200 mb-6">
-          We've sent a verification link to: <strong className="text-white">{email}</strong>
-        </p>
-        <p className="text-sm text-white/70 mb-8">
-          Click the link in your email to continue to file upload.
-        </p>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
-        <p className="text-sm text-white/60">Waiting for email verification...</p>
-        <p className="text-xs text-white/40 mt-2">
-          You must click the link in your email to proceed
-        </p>
       </div>
     );
   }
 
-  // Step 3: File Upload
+  // Step 3: File Upload - UTAN RUBRIK
   if (step === 3) {
     return (
       <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
@@ -299,15 +384,21 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
         )}
       
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Share Files Free with Flowen
-          </h2>
           <p className="text-indigo-200 text-lg">
             Upload your files and get ready to share
           </p>
         </div>
 
-        <div className="border-2 border-dashed border-white/30 rounded-2xl p-12 text-center hover:border-blue-400/50 transition-colors bg-white/5">
+        <div 
+          className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 bg-white/5 ${
+            isDragOver 
+              ? 'border-blue-400 bg-blue-50/10 scale-105' 
+              : 'border-white/30 hover:border-blue-400/50'
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           <input
             type="file"
             multiple
@@ -384,79 +475,80 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     );
   }
 
-  // Step 4: Send Form
+  // Step 4: Send Form - UTAN RUBRIK
   if (step === 4) {
     return (
-      <div className="max-w-2xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
+      <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-4">Send Your Files</h2>
           <p className="text-indigo-200">
             {uploadResults.length} file{uploadResults.length > 1 ? 's' : ''} ready to send
           </p>
         </div>
 
-        <div className="bg-white/5 rounded-xl p-6 mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4">Files to send:</h3>
-          <div className="space-y-2">
-            {uploadResults.map((result, index) => (
-              <div key={index} className="flex items-center justify-between text-sm">
-                <span className="text-white/90">{result.originalName}</span>
-                <span className="text-white/60">{formatFileSize(result.size)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <form onSubmit={handleSendFiles} className="space-y-6">
-          <div>
-            <label className="block text-white/90 text-sm font-medium mb-2">
-              <User className="inline h-4 w-4 mr-2" />
-              Your name
-            </label>
-            <input
-              type="text"
-              value={senderName}
-              onChange={(e) => setSenderName(e.target.value)}
-              className="w-full px-4 py-3 bg-white/20 backdrop-blur border border-white/30 rounded-xl text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-white/90 text-sm font-medium mb-2">
-              <Mail className="inline h-4 w-4 mr-2" />
-              Recipient email
-            </label>
-            <input
-              type="email"
-              value={recipientEmail}
-              onChange={(e) => setRecipientEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-white/20 backdrop-blur border border-white/30 rounded-xl text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-              placeholder="Enter recipient's email"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-white/90 text-sm font-medium mb-2">
-              Message (optional)
-            </label>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={3}
-              className="w-full px-4 py-3 bg-white/20 backdrop-blur border border-white/30 rounded-xl text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
-              placeholder="Add a personal message..."
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-4">
-              <p className="text-red-200 text-sm">{error}</p>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white/5 rounded-xl p-6 mb-8">
+            <h3 className="text-lg font-semibold text-white mb-4">Files to send:</h3>
+            <div className="space-y-2">
+              {uploadResults.map((result, index) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <span className="text-white/90">{result.originalName}</span>
+                  <span className="text-white/60">{formatFileSize(result.size)}</span>
+                </div>
+              ))}
             </div>
+          </div>
+
+          <form onSubmit={handleSendFiles} className="space-y-6">
+            <div>
+              <label className="block text-white/90 text-sm font-medium mb-2">
+                <User className="inline h-4 w-4 mr-2" />
+                Your name
+              </label>
+              <input
+                type="text"
+                value={senderName}
+                onChange={(e) => setSenderName(e.target.value)}
+                className="w-full px-4 py-3 bg-white/20 backdrop-blur border border-white/30 rounded-xl text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-white/90 text-sm font-medium mb-2">
+                <Mail className="inline h-4 w-4 mr-2" />
+                Recipient email
+              </label>
+              <input
+                type="email"
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-white/20 backdrop-blur border border-white/30 rounded-xl text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                placeholder="Enter recipient's email"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-white/90 text-sm font-medium mb-2">
+                Message (optional)
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={3}
+                className="w-full px-4 py-3 bg-white/20 backdrop-blur border border-white/30 rounded-xl text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
+                placeholder="Add a personal message..."
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-4">
+                <p className="text-red-200 text-sm">{error}</p>
+              </div>
             )}
 
+<<<<<<< HEAD
           <div className="flex gap-4">
             <button
               type="button"
@@ -476,37 +568,61 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
             </button>
           </div>
         </form>
+=======
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setStep(3)}
+                className="px-6 py-3 bg-white/20 hover:bg-white/30 text-white font-medium rounded-xl transition-colors border border-white/30"
+              >
+                Back to files
+              </button>
+              
+              <button
+                type="submit"
+                disabled={sending}
+                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-xl transition duration-300 shadow-lg"
+              >
+                <Send className="h-5 w-5" />
+                {sending ? 'Sending...' : 'Send Files'}
+              </button>
+            </div>
+          </form>
+        </div>
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
       </div>
     );
   }
 
-  // Step 5: Success
+  // Step 5: Success - UTAN RUBRIK
   if (step === 5) {
     return (
-      <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 text-center">
-        <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-4xl">✅</span>
+      <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
+        <div className="max-w-md mx-auto text-center">
+          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">✅</span>
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-4">Files Sent Successfully!</h2>
+          <p className="text-indigo-200 mb-6">
+            Your files have been sent to: <strong className="text-white">{recipientEmail}</strong>
+          </p>
+          <p className="text-sm text-white/70 mb-8">
+            They will receive an email with download links that work for 7 days.
+          </p>
+          <button 
+            onClick={() => {
+              setStep(3);
+              setSelectedFiles([]);
+              setUploadResults([]);
+              setSenderName('');
+              setRecipientEmail('');
+              setMessage('');
+            }}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 shadow-lg"
+          >
+            Send More Files
+          </button>
         </div>
-        <h2 className="text-3xl font-bold text-white mb-4">Files Sent Successfully!</h2>
-        <p className="text-indigo-200 mb-6">
-          Your files have been sent to: <strong className="text-white">{recipientEmail}</strong>
-        </p>
-        <p className="text-sm text-white/70 mb-8">
-          They will receive an email with download links that work for 7 days.
-        </p>
-        <button 
-          onClick={() => {
-            setStep(3);
-            setSelectedFiles([]);
-            setUploadResults([]);
-            setSenderName('');
-            setRecipientEmail('');
-            setMessage('');
-          }}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 shadow-lg"
-        >
-          Send More Files
-        </button>
       </div>
     );
   }
