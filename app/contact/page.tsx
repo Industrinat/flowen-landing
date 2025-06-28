@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 
 import { useState } from 'react';
@@ -39,6 +40,9 @@ export default function Contact() {
     setIsSubmitting(false);
   };
 
+=======
+export default function Contact() {
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
   return (
     <main className="relative w-full min-h-screen text-white bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950">
       <div className="max-w-4xl mx-auto px-4 py-16">
@@ -50,12 +54,16 @@ export default function Contact() {
         </div>
 
         <div className="bg-white/10 backdrop-blur rounded-2xl p-8 shadow-xl border border-white/10">
+<<<<<<< HEAD
           <form onSubmit={handleSubmit} className="space-y-6">
             {submitMessage && (
               <div className={`p-4 rounded-lg ${submitMessage.includes('Error') ? 'bg-red-500/20 text-red-200' : 'bg-green-500/20 text-green-200'}`}>
                 {submitMessage}
               </div>
             )}
+=======
+          <form action="https://formspree.io/f/myzwpajk" method="POST" className="space-y-6">
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
             <div>
               <label className="block text-sm font-medium mb-2">Name</label>
               <input
@@ -88,10 +96,16 @@ export default function Contact() {
             </div>
             <button
               type="submit"
+<<<<<<< HEAD
               disabled={isSubmitting}
               className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg disabled:opacity-50"
             >
               {isSubmitting ? 'Sending...' : 'Send Message'}
+=======
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
+            >
+              Send Message
+>>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
             </button>
           </form>
         </div>
