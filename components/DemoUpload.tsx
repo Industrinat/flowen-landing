@@ -23,12 +23,8 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
   const [acceptNewsletter, setAcceptNewsletter] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-<<<<<<< HEAD
-
-=======
   const [isDragOver, setIsDragOver] = useState(false);
   
->>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
   // Upload states
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -82,13 +78,8 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     setError('');
 
     try {
-<<<<<<< HEAD
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    
-=======
       const apiUrl = getApiUrl();
       
->>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
       const response = await fetch(`${apiUrl}/send-verification`, {
         method: 'POST',
         headers: {
@@ -166,13 +157,8 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     const results: UploadResponse[] = [];
 
     try {
-<<<<<<< HEAD
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    
-=======
       const apiUrl = getApiUrl();
       
->>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
       for (const file of selectedFiles) {
         const formData = new FormData();
         formData.append('file', file);
@@ -218,15 +204,9 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     setError('');
 
     try {
-<<<<<<< HEAD
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    
-      const response = await fetch(`${apiUrl}/api/send-files`, {
-=======
       const apiUrl = getApiUrl();
       
       const response = await fetch(`${apiUrl}/send-files`, {
->>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -259,46 +239,13 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     }
   };
 
-  // Step 1: Email Verification - UTAN RUBRIK
+  // Step 1: Email Verification
   if (requireEmailVerification && step === 1) {
     return (
       <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
         <div className="text-center mb-8">
           <p className="text-indigo-200">Enter your email to get started with file sharing</p>
         </div>
-<<<<<<< HEAD
-      
-        <form onSubmit={handleEmailSubmit} className="space-y-6">
-          <div>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-4 bg-white/20 backdrop-blur border border-white/30 rounded-xl text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          <div className="flex items-start space-x-3">
-            <input
-              type="checkbox"
-              id="newsletter"
-              checked={acceptNewsletter}
-              onChange={(e) => setAcceptNewsletter(e.target.checked)}
-              className="mt-1 h-5 w-5 text-blue-500 bg-white/20 border-white/30 rounded focus:ring-blue-400"
-              required
-            />
-            <label htmlFor="newsletter" className="text-sm text-white/90 leading-relaxed">
-              I agree that Flowen may store my email for file sharing and accept receiving updates (max 1/month).
-            </label>
-          </div>
-
-          {error && (
-            <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-4">
-              <p className="text-red-200 text-sm">{error}</p>
-=======
         
         <div className="max-w-md mx-auto">
           <form onSubmit={handleEmailSubmit} className="space-y-6">
@@ -312,7 +259,6 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
                 placeholder="Enter your email"
                 required
               />
->>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
             </div>
 
             <div className="flex items-start space-x-3">
@@ -348,7 +294,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     );
   }
 
-  // Step 2: Email Sent - UTAN RUBRIK
+  // Step 2: Email Sent
   if (requireEmailVerification && step === 2) {
     return (
       <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
@@ -373,7 +319,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     );
   }
 
-  // Step 3: File Upload - UTAN RUBRIK
+  // Step 3: File Upload
   if (step === 3) {
     return (
       <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
@@ -475,7 +421,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     );
   }
 
-  // Step 4: Send Form - UTAN RUBRIK
+  // Step 4: Send Form
   if (step === 4) {
     return (
       <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
@@ -548,27 +494,6 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
               </div>
             )}
 
-<<<<<<< HEAD
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => setStep(3)}
-              className="px-6 py-3 bg-white/20 hover:bg-white/30 text-white font-medium rounded-xl transition-colors border border-white/30"
-            >
-              Back to files
-            </button>
-          
-            <button
-              type="submit"
-              disabled={sending}
-              className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-xl transition duration-300 shadow-lg"
-            >
-              <Send className="h-5 w-5" />
-              {sending ? 'Sending...' : 'Send Files'}
-            </button>
-          </div>
-        </form>
-=======
             <div className="flex gap-4">
               <button
                 type="button"
@@ -589,12 +514,11 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
             </div>
           </form>
         </div>
->>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
       </div>
     );
   }
 
-  // Step 5: Success - UTAN RUBRIK
+  // Step 5: Success
   if (step === 5) {
     return (
       <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
