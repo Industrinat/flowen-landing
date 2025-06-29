@@ -9,18 +9,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Get access token
-    const tokenResponse = await fetch('https://login.microsoftonline.com/' + process.env.AZURE_TENANT_ID + '/oauth2/v2.0/token', {
+    const tokenResponse = await fetch('https://login.microsoftonline.com/' + process.env.TENANT_ID + '/oauth2/v2.0/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        client_id: process.env.AZURE_CLIENT_ID!,
-        client_secret: process.env.AZURE_CLIENT_SECRET!,
+        client_id: process.env.CLIENT_ID!,
+        client_secret: process.env.CLIENT_SECRET!,
         scope: 'https://graph.microsoft.com/.default',
         grant_type: 'client_credentials'
       })
     });
 
     const tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok) {
+      throw new Error('Failed to get access token');
+    }
 
     // Send email via Graph API
     const emailResponse = await fetch('https://graph.microsoft.com/v1.0/users/info@flowen.eu/sendMail', {
