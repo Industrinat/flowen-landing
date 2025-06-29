@@ -1,0 +1,42 @@
+[33m89493c6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m collectemails
+[33m3588789[m[33m ([m[1;33mtag: [m[1;33mv1.0-production[m[33m)[m PRODUCTION READY: Remove bypass button, secure email verification
+[33m2761c8d[m Fix FlowenEmailVerification props interface
+[33m4e956d3[m Fix async params for Next.js 15
+[33meb2f115[m Add missing DownloadPage component
+[33m2bfb0cb[m Merge branch 'main' of https://github.com/Industrinat/flowen-site
+[33md1090b4[m Update email verification and file sharing flow
+[33mcc1dabe[m 🔧 Uppdaterat e-postfunktion + API-koppling
+[33m00b5b72[m Klargör frontend för deployment mot API
+[33m3e15b66[m Add working DemoUpload with full step-by-step flow
+[33m1876ada[m Fix: Correct TypeScript typing for file input
+[33m50873fe[m Uppdaterad DemoUpload med korrekt design och funktion
+[33m1ed863a[m[33m ([m[1;32mworking-restore[m[33m)[m Add DemoUpload.tsx with working upload form
+[33m47bb608[m Add working file upload and adjust .gitignore
+[33mab23b14[m Added BI Chartr
+[33m9822a98[m flowentalksEP1
+[33m6c705a8[m Ny Videoavatarr
+[33m8853782[m MSverfr
+[33m82cacf6[m MS textconfirmationr
+[33mb1b2c6f[m added intro vide
+[33m7b1565f[m Fixat text och video-ljus i kontaktsektionen
+[33m3d39e05[m Disable ESLint on Vercel builds
+[33m341adc3[m Fixade Testimonials-komponenten och carousel bug
+[33m7930e55[m Fixade Testimonials-komponenten och carousel bug
+[33m8009de7[m Fix React import and escape quotes for Vercel deploy
+[33m59df0c0[m Fix duplicate React import and build errors
+[33mc0752e0[m Fix: flyttat 'use client' och React-import
+[33m97c06c9[m Fix: added React imports
+[33m1e16e19[m changed dummy pic for databas integration
+[33ma6292b2[m[33m ([m[1;31morigin/update-kanban[m[33m, [m[1;32mupdate-kanban[m[33m)[m update canban
+[33m74461a3[m[33m ([m[1;32mtest-environment[m[33m)[m Fixade animerad linje med css-modul, bugfixat!
+[33me9c2014[m Större logga och mindre vit platta under headern
+[33m9684c3e[m Löst merge-konflikt i page.tsx, behåller modern layout
+[33m64322b0[m Snygg, stabil version med rätt logga
+[33m600b838[m Delad layout: formulär + video 50/50
+[33m57240f5[m update logn
+[33m8fc6e0d[m Uppdaterad logga och tagline
+[33m22841c5[m Uppdaterad logga och tagline
+[33m7946e7c[m Fixar formulär-syntaxfel
+[33ma24c98b[m Lägger till kontaktformulär via Formspree
+[33maf26696[m Lägger till videobakgrund på startsidan
+[33md294949[m Initial commit
