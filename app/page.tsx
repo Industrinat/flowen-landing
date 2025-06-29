@@ -1,8 +1,6 @@
-<<<<<<< HEAD
+
 "use client";
 
-=======
->>>>>>> 8a97228cd61a211ef6448b934bba541f83831e40
 import { EmailWithProTips } from "../components/EmailWithProTips";
 import DemoUpload from "../components/DemoUpload";
 import React, { useState } from "react";
