@@ -26,38 +26,38 @@ export function EmailWithProTips() {
   const tips = [
     {
       id: 1,
-      title: "Admin User Management",
-      content: "Take full control of file access. Admins can invite specific users via email verification, set permissions, and manage who has access to sensitive documents.",
+      title: "EU-First GDPR Compliance",
+      content: "Built for European businesses with GDPR compliance from day one. EU data centers, privacy by design, and full regulatory compliance.",
       position: "top-left"
     },
     {
       id: 2,
-      title: "IP Access Control", 
-      content: "Restrict file access to specific locations. Configure your office IP addresses or VPN ranges to ensure files can only be accessed from trusted networks.",
+      title: "European Team Collaboration", 
+      content: "Designed for European work culture with multi-language support, timezone awareness, and collaboration tools that fit EU business practices.",
       position: "top-right"
     },
     {
       id: 3,
-      title: "Complete Activity Tracking",
-      content: "Monitor every file interaction with detailed audit trails. See who accessed what files, when, and from which IP address for complete transparency.",
+      title: "Platform Customization",
+      content: "With Flowen we can build your tool exactly as you want it. Adjust design, branding, and functions to match your business needs.",
       position: "left"
     },
     {
       id: 4,
-      title: "Two-Factor Authentication",
-      content: "Add an extra security layer with 2FA. Support for SMS codes, Google Authenticator, and Microsoft Authenticator to ensure only authorized users gain access.",
+      title: "EU Business Tool Integration",
+      content: "Seamless integration with popular European business tools plus global platforms like Slack, Teams, and Google Workspace.",
       position: "right"
     },
     {
       id: 5,
-      title: "IP White-listing Control",
-      content: "White-list specific IP addresses for absolute access control. Create a trusted list of IP addresses that can always access files, perfect for key personnel, management, or critical business locations that need guaranteed access.",
+      title: "European Business Pricing",
+      content: "Transparent pricing designed for European SMEs. No hidden fees, SEPA payments, and pricing that scales with European business growth.",
       position: "bottom-left"
     },
     {
       id: 6,
-      title: "Enterprise Integration",
-      content: "Seamless Single Sign-On with Microsoft Azure AD, Google Workspace, and other enterprise systems. Perfect for larger organizations.",
+      title: "Advanced Security Features",
+      content: "Two-factor authentication, IP whitelisting, and advanced encryption. Multiple security layers to protect your sensitive business data.",
       position: "bottom-right"
     }
   ];
