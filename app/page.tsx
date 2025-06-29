@@ -1,12 +1,64 @@
+
+"use client";
+
 import { EmailWithProTips } from "../components/EmailWithProTips";
 import DemoUpload from "../components/DemoUpload";
-import React from "react";
+import React, { useState } from "react";
 import HowItWorks from '../components/HowItWorks';
 import Testimonials from '../components/Testimonials';
 import styles from './page.module.css';
 import { BarChart3, Users, Clock } from 'lucide-react';
 
 export default function Home() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log('Form submitted!');
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      message: formData.get('message'),
+      gdpr_consent: formData.get('gdpr_consent') === 'on'
+    };
+
+    console.log('Data to send:', data);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      const result = await response.json();
+      console.log('Result:', result);
+      if (response.ok) {
+  console.log('SUCCESS - about to redirect');
+  console.log('Current location:', window.location.href);
+  window.location.href = '/thank-you';
+  console.log('Redirect command sent');
+  return;
+} else {
+  console.log('RESPONSE NOT OK');
+  setSubmitMessage('Error: ' + result.error);
+}
+    } catch (error) {
+      console.log('Catch error:', error);
+      setSubmitMessage('Error sending message. Please try again.');
+    }
+    
+    setIsSubmitting(false);
+  };
+
   return (
     <main className="relative w-full min-h-screen overflow-hidden text-white bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950">
       <header className="flex flex-col items-center justify-center pt-16 pb-8">
@@ -105,11 +157,15 @@ export default function Home() {
         <div className="mt-16 flex flex-col md:flex-row w-full max-w-6xl mx-auto gap-8">
           <div className="w-full md:w-1/2">
             <form
-              action="https://formspree.io/f/myzwpajk"
-              method="POST"
+              onSubmit={handleSubmit}
               className="bg-white bg-opacity-90 text-black p-6 rounded-xl shadow"
             >
               <h2 className="text-xl font-semibold mb-4 text-left">Contact</h2>
+              {submitMessage && (
+                <div className={`mb-4 p-3 rounded ${submitMessage.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                  {submitMessage}
+                </div>
+              )}
               <label className="block mb-3 text-left">
                 <span className="text-sm font-medium">Name</span>
                 <input
@@ -151,9 +207,10 @@ export default function Home() {
               </label>
               <button
                 type="submit"
-                className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+                disabled={isSubmitting}
+                className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition disabled:opacity-50"
               >
-                Send
+                {isSubmitting ? 'Sending...' : 'Send'}
               </button>
             </form>
           </div>
