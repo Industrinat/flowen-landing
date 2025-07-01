@@ -2,3 +2,5 @@
 {"timestamp":"2025-06-29T18:42:41.406Z","type":"verification","email":"info@sportmaterial.se"}
 {"timestamp":"2025-06-29T18:43:24.607Z","type":"file_sharing","senderName":"NIcke ","senderEmail":"info@sportmaterial.se","recipientEmail":"daniel.olsson@sportmaterial.se","filesCount":1,"fileNames":["DATABLAD-PPM-2-mm-20-maska.pdf"],"message":"testar igen"}
 {"timestamp":"2025-06-29T19:14:56.284Z","type":"verification","email":"info@sportmaterial.se"}
+{"timestamp":"2025-07-01T20:13:40.969Z","type":"verification","email":"daniel.olsson@sportmaterial.se"}
+{"timestamp":"2025-07-01T20:17:31.435Z","type":"file_sharing","senderName":"Daniel Olsson","senderEmail":"daniel.olsson@sportmaterial.se","recipientEmail":"daniel.olsson@sportmaterial.se","filesCount":1,"fileNames":["Expempel.pdf"],"message":"testar lite "}

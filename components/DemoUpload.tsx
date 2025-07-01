@@ -169,15 +169,21 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
       
       for (const file of selectedFiles) {
         // 🔐 KRYPTERING
+        let encryptionKey;
+        let encryptedData;
+        let iv;
+        
         try {
           // 1. Generera unik encryption key för denna fil
-          const encryptionKey = await generateEncryptionKey();
+          encryptionKey = await generateEncryptionKey();
           
           // 2. Läs fil som ArrayBuffer
           const fileBuffer = await file.arrayBuffer();
           
           // 3. Kryptera filen
-          const { encryptedData, iv } = await encryptFile(fileBuffer, encryptionKey);
+          const encrypted = await encryptFile(fileBuffer, encryptionKey);
+          encryptedData = encrypted.encryptedData;
+          iv = encrypted.iv;
           
           // 4. Skapa FormData med krypterad data
           const formData = new FormData();
@@ -226,6 +232,11 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
             ...data,
             shareUrl: secureShareUrl
           });
+          
+          // Enkel status för att bekräfta att kryptering fungerar
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ ${file.name} - Encrypted and uploaded successfully`);
+          }
         } else {
           throw new Error(data.error || "Upload failed");
         }
