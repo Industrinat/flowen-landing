@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Upload, X, Plus, Send, User, Mail } from 'lucide-react';
+import { generateEncryptionKey, encryptFile, keyToBase64 } from '@/lib/crypto';
 
+// Interfaces
 interface UploadResponse {
   success: boolean;
   message: string;
@@ -17,7 +19,13 @@ interface DemoUploadProps {
   userEmail?: string;
 }
 
-const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true, userEmail }) => {
+const DemoUpload: React.FC<DemoUploadProps> = ({ 
+  requireEmailVerification = true, 
+  userEmail 
+}) => {
+  // Development logging removed for cleaner production
+  
+  // States
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [acceptNewsletter, setAcceptNewsletter] = useState(false);
@@ -38,11 +46,11 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
 
   // Smart API URL detection
   const getApiUrl = () => {
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:3000';
-  }
-  return 'https://flowen.eu';  // Använd samma domän, inte flowen.eu
-};
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:3000';
+    }
+    return ''; // Använd samma domän som frontend
+  };
 
   useEffect(() => {
     if (requireEmailVerification) {
@@ -63,7 +71,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+    
     if (!email) {
       setError('Please enter your email address');
       return;
@@ -80,7 +88,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     try {
       const apiUrl = getApiUrl();
       
-      const response = await fetch(`${apiUrl}/api/send-verification/`, {
+      const response = await fetch(`${apiUrl}/api/send-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -160,18 +168,64 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
       const apiUrl = getApiUrl();
       
       for (const file of selectedFiles) {
-        const formData = new FormData();
-        formData.append('file', file);
+        // 🔐 KRYPTERING
+        try {
+          // 1. Generera unik encryption key för denna fil
+          const encryptionKey = await generateEncryptionKey();
+          
+          // 2. Läs fil som ArrayBuffer
+          const fileBuffer = await file.arrayBuffer();
+          
+          // 3. Kryptera filen
+          const { encryptedData, iv } = await encryptFile(fileBuffer, encryptionKey);
+          
+          // 4. Skapa FormData med krypterad data
+          const formData = new FormData();
+          formData.append('encryptedFile', new Blob([encryptedData]));
+          formData.append('iv', keyToBase64(iv));
+          formData.append('originalName', file.name);
+          formData.append('originalSize', file.size.toString());
+          formData.append('mimeType', file.type);
+        } catch (cryptoError) {
+          console.error('❌ Krypteringsfel:', cryptoError);
+          throw cryptoError;
+        }
 
-        const response = await fetch(`${apiUrl}/api/upload`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await response.json();
+        // TEMPORÄR MOCK FÖR LOKAL TESTNING
+        let response;
+        let data;
+        
+        if (apiUrl.includes('localhost')) {
+          // Simulera en lyckad upload
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulera nätverksfördröjning
+          
+          data = {
+            success: true,
+            message: 'File uploaded successfully (MOCK)',
+            uploadId: `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            originalName: file.name,
+            size: file.size,
+            shareUrl: `http://localhost:3000/download/mock_${Date.now()}`
+          };
+        } else {
+          // Riktig upload till produktionsserver
+          response = await fetch(`${apiUrl}/api/upload`, {
+            method: 'POST',
+            body: formData,
+          });
+          
+          data = await response.json();
+        }
 
         if (data.success && data.shareUrl) {
-          results.push(data);
+          // 5. Lägg till decryption key i URL
+          const downloadKey = keyToBase64(encryptionKey);
+          const secureShareUrl = `${data.shareUrl}?key=${downloadKey}`;
+          
+          results.push({
+            ...data,
+            shareUrl: secureShareUrl
+          });
         } else {
           throw new Error(data.error || "Upload failed");
         }
@@ -206,7 +260,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
     try {
       const apiUrl = getApiUrl();
       
-      const response = await fetch(`${apiUrl}/api/send-files/`, {
+      const response = await fetch(`${apiUrl}/api/send-files`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -238,6 +292,8 @@ const DemoUpload: React.FC<DemoUploadProps> = ({ requireEmailVerification = true
       setSending(false);
     }
   };
+
+  // Form submission handlers
 
   // Step 1: Email Verification
   if (requireEmailVerification && step === 1) {
