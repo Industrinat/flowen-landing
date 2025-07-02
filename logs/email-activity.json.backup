@@ -1,0 +1,14 @@
+{"timestamp":"2025-06-29T18:36:59.641Z","type":"verification","email":"daniel.olsson@sportmaterial.se"}
+{"timestamp":"2025-06-29T18:42:41.406Z","type":"verification","email":"info@sportmaterial.se"}
+{"timestamp":"2025-06-29T18:43:24.607Z","type":"file_sharing","senderName":"NIcke ","senderEmail":"info@sportmaterial.se","recipientEmail":"daniel.olsson@sportmaterial.se","filesCount":1,"fileNames":["DATABLAD-PPM-2-mm-20-maska.pdf"],"message":"testar igen"}
+{"timestamp":"2025-06-29T19:14:56.284Z","type":"verification","email":"info@sportmaterial.se"}
+{"timestamp":"2025-07-01T18:28:12.582Z","type":"verification","email":"info@industrinat.se"}
+{"timestamp":"2025-07-01T18:35:03.105Z","type":"file_sharing","senderName":"Dnaiel","senderEmail":"info@industrinat.se","recipientEmail":"daniel.olsson@industrinat.se","filesCount":1,"fileNames":["STÖDBEN-331_S1.pdf"],"message":"testar"}
+{"timestamp":"2025-07-01T18:45:54.600Z","type":"file_sharing","senderName":"Daniel","senderEmail":"info@industrinat.se","recipientEmail":"info@sportmaterial.se","filesCount":1,"fileNames":["Expempel.pdf"],"message":"testar"}
+{"timestamp":"2025-07-01T18:54:06.680Z","type":"file_sharing","senderName":"Daniel","senderEmail":"info@industrinat.se","recipientEmail":"info@sportmaterial.se","filesCount":1,"fileNames":["Expempel.pdf"],"message":"testar "}
+{"timestamp":"2025-07-01T19:00:14.528Z","type":"file_sharing","senderName":"daniel","senderEmail":"info@industrinat.se","recipientEmail":"daniel.olsson@industrinat.se","filesCount":1,"fileNames":["Expempel.pdf"],"message":"test"}
+{"timestamp":"2025-07-01T19:46:38.520Z","type":"verification","email":"daniel.olsson@sportmaterial.se"}
+{"timestamp":"2025-07-01T19:47:23.077Z","type":"file_sharing","senderName":"Danne","senderEmail":"daniel.olsson@sportmaterial.se","recipientEmail":"info@sportmaterial.se","filesCount":1,"fileNames":["Expempel.pdf"],"message":"testar lite "}
+{"timestamp":"2025-07-01T20:44:54.839Z","type":"file_sharing","senderName":"Daniel","senderEmail":"daniel.olsson@sportmaterial.se","recipientEmail":"daniel.olsson@industrinat.se","filesCount":1,"fileNames":["2241.pdf"],"message":"testar lite "}
+{"timestamp":"2025-07-01T21:04:09.627Z","type":"verification","email":"info@sportmaterial.se"}
+{"timestamp":"2025-07-01T21:04:51.496Z","type":"file_sharing","senderName":"Daniel","senderEmail":"info@sportmaterial.se","recipientEmail":"info@sportmaterial.se","filesCount":1,"fileNames":["2241.pdf"],"message":"testar lite "}
