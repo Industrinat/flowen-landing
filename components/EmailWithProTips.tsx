@@ -32,8 +32,8 @@ export function EmailWithProTips() {
     },
     {
       id: 2,
-      title: "European Team Collaboration", 
-      content: "Designed for European work culture with multi-language support, timezone awareness, and collaboration tools that fit EU business practices.",
+      title: "File sharing with end-to-end encryption", 
+      content: "Your files are encrypted before leaving your computer - not even we can read them.",
       position: "top-right"
     },
     {
@@ -90,7 +90,7 @@ export function EmailWithProTips() {
           margin: '0',
           textShadow: '0 1px 2px rgba(0,0,0,0.3)'
         }}>
-          File sharing with full control and enterprise security
+          Share files aboslutly free - no credit card needed
         </h2>
       </div>
 
