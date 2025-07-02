@@ -172,6 +172,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
         let encryptionKey;
         let encryptedData;
         let iv;
+        let formData; // Lägg till här!
         
         try {
           // 1. Generera unik encryption key för denna fil
@@ -186,7 +187,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
           iv = encrypted.iv;
           
           // 4. Skapa FormData med krypterad data
-          const formData = new FormData();
+          formData = new FormData(); // Ta bort "const"
           formData.append('encryptedFile', new Blob([encryptedData]));
           formData.append('iv', keyToBase64(iv));
           formData.append('originalName', file.name);
