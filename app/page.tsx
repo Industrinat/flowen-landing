@@ -76,7 +76,8 @@ export default function Home() {
         </h1>
         <div className={styles.customline}></div>
         <span className="mt-2 text-l md:text-2xl text-indigo-300 font-semibold tracking-wide block">
-          Performance, non stop.
+          File sharing with end-to-end encryption
+
         </span>
       </header>
 
