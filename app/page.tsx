@@ -1,4 +1,3 @@
-
 "use client";
 
 import { EmailWithProTips } from "../components/EmailWithProTips";
@@ -42,15 +41,15 @@ export default function Home() {
       const result = await response.json();
       console.log('Result:', result);
       if (response.ok) {
-  console.log('SUCCESS - about to redirect');
-  console.log('Current location:', window.location.href);
-  window.location.href = '/thank-you';
-  console.log('Redirect command sent');
-  return;
-} else {
-  console.log('RESPONSE NOT OK');
-  setSubmitMessage('Error: ' + result.error);
-}
+        console.log('SUCCESS - about to redirect');
+        console.log('Current location:', window.location.href);
+        window.location.href = '/thank-you';
+        console.log('Redirect command sent');
+        return;
+      } else {
+        console.log('RESPONSE NOT OK');
+        setSubmitMessage('Error: ' + result.error);
+      }
     } catch (error) {
       console.log('Catch error:', error);
       setSubmitMessage('Error sending message. Please try again.');
@@ -61,6 +60,19 @@ export default function Home() {
 
   return (
     <main className="relative w-full min-h-screen overflow-hidden text-white bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950">
+      {/* Login button - fixed top right */}
+      <div className="absolute top-4 right-4 z-50">
+        <a 
+          href="/login"
+          className="flex items-center gap-2 px-6 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-lg text-white rounded-lg transition-all hover:scale-105 border border-white/20"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+          </svg>
+          Login
+        </a>
+      </div>
+
       <header className="flex flex-col items-center justify-center pt-16 pb-8">
         <div className="relative flex items-center justify-center mb-4" style={{ height: 160 }}>
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-28 bg-white rounded-3xl shadow-2xl z-0" />
@@ -77,7 +89,6 @@ export default function Home() {
         <div className={styles.customline}></div>
         <span className="mt-2 text-l md:text-2xl text-indigo-300 font-semibold tracking-wide block">
           File sharing with end-to-end encryption
-
         </span>
       </header>
 

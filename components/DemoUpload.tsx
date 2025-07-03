@@ -46,11 +46,8 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
 
   // Smart API URL detection
   const getApiUrl = () => {
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-      return 'http://localhost:3000';
-    }
-    return ''; // Använd samma domän som frontend
-  };
+  return process.env.NEXT_PUBLIC_API_URL || 'https://api.flowen.eu';
+};
 
   useEffect(() => {
     if (requireEmailVerification) {
@@ -87,7 +84,8 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
 
     try {
       const apiUrl = getApiUrl();
-      
+      console.log('API URL:', apiUrl); 
+    
       const response = await fetch(`${apiUrl}/api/send-verification`, {
         method: 'POST',
         headers: {
@@ -202,27 +200,13 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
         let response;
         let data;
         
-        if (apiUrl.includes('localhost')) {
-          // Simulera en lyckad upload
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulera nätverksfördröjning
-          
-          data = {
-            success: true,
-            message: 'File uploaded successfully (MOCK)',
-            uploadId: `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            originalName: file.name,
-            size: file.size,
-            shareUrl: `http://localhost:3000/download/mock_${Date.now()}`
-          };
-        } else {
-          // Riktig upload till produktionsserver
-          response = await fetch(`${apiUrl}/api/upload`, {
-            method: 'POST',
-            body: formData,
-          });
-          
-          data = await response.json();
-        }
+        // Alltid använd riktig upload
+        response = await fetch(`${apiUrl}/api/upload`, {
+        method: 'POST',
+        body: formData,
+  });
+
+        data = await response.json();
 
         if (data.success && data.shareUrl) {
           // 5. Lägg till decryption key i URL
@@ -272,7 +256,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
     try {
       const apiUrl = getApiUrl();
       
-      const response = await fetch(`${apiUrl}/api/send-files`, {
+      const response = await fetch(`${apiUrl}/send-files`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

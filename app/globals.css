@@ -170,3 +170,7 @@ body {
 }
 .tip-arm.bottom-left { bottom: -60px; left: -100px; }
 .tip-arm.bottom-right { bottom: -60px; right: -100px; }
+/* Page transitions */
+* {
+  transition: opacity 0.2s ease-in-out;
+}

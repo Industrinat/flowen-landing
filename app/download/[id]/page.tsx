@@ -1,15 +1,18 @@
 // app/download/[id]/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { decryptFile, base64ToKey } from '@/lib/crypto';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function DownloadPage({ params }: PageProps) {
+  // Use React.use to unwrap params
+  const { id: fileId } = use(params);
+  
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string>('');
@@ -17,7 +20,6 @@ export default function DownloadPage({ params }: PageProps) {
   const [decryptedBlob, setDecryptedBlob] = useState<Blob | null>(null);
 
   const encryptionKey = searchParams.get('key');
-  const fileId = params.id;
 
   useEffect(() => {
     if (!fileId || !encryptionKey) {
@@ -34,7 +36,6 @@ export default function DownloadPage({ params }: PageProps) {
       // Check if this is a mock file (development mode)
       if (fileId.startsWith('mock_')) {
         // For mock files, simulate the encrypted data
-        // In real implementation, this would fetch from backend
         setStatus('ready');
         setFileInfo({
           name: 'Demo_File.pdf',
@@ -50,45 +51,50 @@ export default function DownloadPage({ params }: PageProps) {
         return;
       }
 
-      // For real files, fetch from backend
-      const response = await fetch(`http://localhost:3001/api/download/${fileId}`);
+      // For real files, fetch metadata from backend
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.flowen.eu';
+const metadataResponse = await fetch(`${backendUrl}/api/download/${fileId}`);
       
-      if (!response.ok) {
+      if (!metadataResponse.ok) {
         throw new Error('File not found');
       }
 
-      // Backend should return the encrypted file data along with metadata
-      const fileData = await response.json();
+      // Backend returns metadata for encrypted files
+      const metadata = await metadataResponse.json();
       
-      // Get the encrypted file content
-      const encryptedResponse = await fetch(fileData.url);
-      const encryptedArrayBuffer = await encryptedResponse.arrayBuffer();
-      
-      // Konvertera encryption key från base64
-      if (!encryptionKey) {
+      if (metadata.encrypted) {
+        // Fetch the actual encrypted file
+        const encryptedFileResponse = await fetch(`${backendUrl}${metadata.url}`);
+        const encryptedArrayBuffer = await encryptedFileResponse.arrayBuffer();
+        
+        // Convert encryption key from base64
+        if (!encryptionKey) {
   throw new Error('Encryption key is missing');
 }
-const key = base64ToKey(encryptionKey);
-    
-      
-      // Parse IV from the metadata (it was sent separately during upload)
-      const iv = base64ToKey(fileData.iv);
-      
-      // Dekryptera
-      const encryptedData = new Uint8Array(encryptedArrayBuffer);
-      const decryptedData = await decryptFile(encryptedData, key, iv);
-      
-      // Skapa blob från dekrypterad data
-      const mimeType = fileData.mimeType || guessMimeType(fileData.originalName || fileId);
-      const blob = new Blob([decryptedData], { type: mimeType });
-      
-      setDecryptedBlob(blob);
-      setFileInfo({
-        name: fileData.originalName || fileId,
-        size: blob.size,
-        type: mimeType
-      });
-      setStatus('ready');
+        const key = base64ToKey(encryptionKey);
+        
+        // Parse IV from the metadata
+        const iv = base64ToKey(metadata.iv);
+        
+        // Decrypt
+        const encryptedData = new Uint8Array(encryptedArrayBuffer);
+        const decryptedData = await decryptFile(encryptedData, key, iv);
+        
+        // Create blob from decrypted data
+        const mimeType = metadata.mimeType || guessMimeType(metadata.originalName || fileId);
+        const blob = new Blob([decryptedData], { type: mimeType });
+        
+        setDecryptedBlob(blob);
+        setFileInfo({
+          name: metadata.originalName || fileId,
+          size: blob.size,
+          type: mimeType
+        });
+        setStatus('ready');
+      } else {
+        // For non-encrypted files, download directly
+        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/download/${fileId}`;
+      }
       
     } catch (err) {
       console.error('Decryption error:', err);
@@ -98,12 +104,12 @@ const key = base64ToKey(encryptionKey);
   };
 
   const handleDownload = () => {
-    if (!decryptedBlob) return;
+    if (!decryptedBlob || !fileInfo) return;
     
     const url = URL.createObjectURL(decryptedBlob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileId; // Eller använd originalnamnet om du har det
+    a.download = fileInfo.name;
     document.body.appendChild(a);
     a.click();
     URL.revokeObjectURL(url);
@@ -116,12 +122,17 @@ const key = base64ToKey(encryptionKey);
       'pdf': 'application/pdf',
       'doc': 'application/msword',
       'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'xls': 'application/vnd.ms-excel',
+      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'ppt': 'application/vnd.ms-powerpoint',
+      'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       'txt': 'text/plain',
       'jpg': 'image/jpeg',
       'jpeg': 'image/jpeg',
       'png': 'image/png',
       'gif': 'image/gif',
-      'zip': 'application/zip'
+      'zip': 'application/zip',
+      'rar': 'application/x-rar-compressed'
     };
     return mimeTypes[ext || ''] || 'application/octet-stream';
   };
@@ -136,10 +147,10 @@ const key = base64ToKey(encryptionKey);
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Decrypting file...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Decrypting file...</p>
         </div>
       </div>
     );
@@ -147,13 +158,13 @@ const key = base64ToKey(encryptionKey);
 
   if (status === 'error') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
         <div className="text-center max-w-md">
-          <div className="bg-red-100 text-red-600 p-6 rounded-lg mb-4">
+          <div className="bg-red-500/20 backdrop-blur-lg text-white p-6 rounded-lg mb-4 border border-red-400/30">
             <h2 className="text-xl font-semibold mb-2">Download Error</h2>
             <p>{error}</p>
           </div>
-          <a href="/" className="text-blue-600 hover:underline">
+          <a href="/" className="text-blue-300 hover:text-blue-200 hover:underline">
             Return to homepage
           </a>
         </div>
@@ -162,34 +173,34 @@ const key = base64ToKey(encryptionKey);
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/20">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Secure Download</h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="text-2xl font-bold text-white mb-2">Secure Download</h1>
+          <p className="text-indigo-200 mb-6">
             Your file has been decrypted and is ready to download.
           </p>
         </div>
 
         {fileInfo && (
-          <div className="bg-gray-50 p-4 rounded-lg mb-6">
-            <p className="text-sm text-gray-600 mb-1">File name:</p>
-            <p className="font-medium text-gray-900">{fileInfo.name}</p>
-            <p className="text-sm text-gray-600 mb-1 mt-3">File size:</p>
-            <p className="font-medium text-gray-900">{formatFileSize(fileInfo.size)}</p>
-            <p className="text-sm text-gray-600 mb-1 mt-3">Encryption:</p>
-            <p className="font-medium text-green-600">✓ AES-256 GCM</p>
+          <div className="bg-white/5 p-4 rounded-lg mb-6 border border-white/10">
+            <p className="text-sm text-indigo-200 mb-1">File name:</p>
+            <p className="font-medium text-white">{fileInfo.name}</p>
+            <p className="text-sm text-indigo-200 mb-1 mt-3">File size:</p>
+            <p className="font-medium text-white">{formatFileSize(fileInfo.size)}</p>
+            <p className="text-sm text-indigo-200 mb-1 mt-3">Encryption:</p>
+            <p className="font-medium text-green-400">✓ AES-256 GCM</p>
           </div>
         )}
 
         <button
           onClick={handleDownload}
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center"
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 shadow-lg flex items-center justify-center"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
@@ -197,7 +208,7 @@ const key = base64ToKey(encryptionKey);
           Download Decrypted File
         </button>
 
-        <p className="text-xs text-gray-500 text-center mt-4">
+        <p className="text-xs text-indigo-300 text-center mt-4">
           This file was encrypted with AES-256-GCM encryption
         </p>
       </div>

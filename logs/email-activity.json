@@ -4,3 +4,6 @@
 {"timestamp":"2025-06-29T19:14:56.284Z","type":"verification","email":"info@sportmaterial.se"}
 {"timestamp":"2025-07-01T20:13:40.969Z","type":"verification","email":"daniel.olsson@sportmaterial.se"}
 {"timestamp":"2025-07-01T20:17:31.435Z","type":"file_sharing","senderName":"Daniel Olsson","senderEmail":"daniel.olsson@sportmaterial.se","recipientEmail":"daniel.olsson@sportmaterial.se","filesCount":1,"fileNames":["Expempel.pdf"],"message":"testar lite "}
+{"timestamp":"2025-07-03T14:54:38.424Z","type":"verification","email":"daniel.olsson@industrinat.se"}
+{"timestamp":"2025-07-03T14:55:11.509Z","type":"file_sharing","senderName":"greger ","senderEmail":"daniel.olsson@industrinat.se","recipientEmail":"info@sportmaterial.se","filesCount":1,"fileNames":["label_7363429718.pdf"],"message":"testing testing"}
+{"timestamp":"2025-07-03T15:50:13.909Z","type":"file_sharing","senderName":"greger 2","senderEmail":"daniel.olsson@industrinat.se","recipientEmail":"ekonomi@industrinat.se","filesCount":1,"fileNames":["Business Arena _ SEBRombull.pdf"],"message":"testing som vanligt"}
