@@ -4,7 +4,6 @@ import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 
-// Smart API URL detection function
 const getApiUrl = (req: NextRequest) => {
   const origin = req.headers.get('origin') || req.headers.get('referer');
   console.log('API Request origin:', origin);
@@ -18,12 +17,18 @@ const getApiUrl = (req: NextRequest) => {
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const file = formData.get('file') as File;
     
-    if (!file) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'No file uploaded' 
+    // Handle encrypted file upload
+    const encryptedFile = formData.get('encryptedFile') as File;
+    const iv = formData.get('iv') as string;
+    const originalName = formData.get('originalName') as string;
+    const originalSize = formData.get('originalSize') as string;
+    const mimeType = formData.get('mimeType') as string;
+    
+    if (!encryptedFile || !iv || !originalName) {
+      return NextResponse.json({
+        success: false,
+        error: 'Missing required fields'
       }, { status: 400 });
     }
 
@@ -35,36 +40,48 @@ export async function POST(req: NextRequest) {
 
     // Generate unique filename
     const uniqueId = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const fileExtension = path.extname(file.name);
-    const filename = uniqueId + fileExtension;
+    const filename = uniqueId;
     const filepath = path.join(uploadsDir, filename);
 
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
+    // Save encrypted file
+    const bytes = await encryptedFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
     await writeFile(filepath, buffer);
 
-    // Smart URL detection for download links
-    const apiUrl = getApiUrl(req);
-    const shareUrl = `${apiUrl}/uploads/${filename}`;
+    // Save metadata
+    const metadata = {
+      iv: iv,
+      originalName: originalName,
+      originalSize: originalSize,
+      mimeType: mimeType || 'application/octet-stream',
+      uploadTime: new Date().toISOString(),
+      encryptedFilename: filename
+    };
+    
+    const metadataPath = filepath + '.meta.json';
+    await writeFile(metadataPath, JSON.stringify(metadata, null, 2));
 
-    console.log('File uploaded:', file.name, '→', filename);
-    console.log('API URL detected:', apiUrl);
+    // Generate share URL
+    const apiUrl = getApiUrl(req);
+    const shareUrl = `${apiUrl}/download/${filename}`;
+
+    console.log('Encrypted file uploaded:', originalName, '→', filename);
+    console.log('Metadata saved:', filename + '.meta.json');
     console.log('Share URL:', shareUrl);
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       shareUrl: shareUrl,
-      originalName: file.name,
-      size: file.size,
+      originalName: originalName,
+      size: originalSize,
       uploadId: filename
     });
 
   } catch (error: any) {
     console.error('Upload error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to upload file: ' + error.message 
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to upload file: ' + error.message
     }, { status: 500 });
   }
 }

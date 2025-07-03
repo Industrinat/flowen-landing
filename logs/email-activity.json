@@ -1,0 +1,7 @@
+{"timestamp":"2025-07-03T13:10:18.251Z","type":"verification","email":"daniel.olsson@industrinat.se"}
+{"timestamp":"2025-07-03T20:43:11.259Z","type":"verification","email":"info@industrinat.se"}
+{"timestamp":"2025-07-03T20:52:47.394Z","type":"verification","email":"info@industrinat.se"}
+{"timestamp":"2025-07-03T21:07:52.425Z","type":"verification","email":"info@sportmaterial.se"}
+{"timestamp":"2025-07-03T21:08:36.061Z","type":"file_sharing","senderName":"Danne","senderEmail":"info@sportmaterial.se","recipientEmail":"daniel.olsson@industrinat.se","filesCount":1,"fileNames":["Business Arena _ SEBRombull.pdf"],"message":"testar lite "}
+{"timestamp":"2025-07-03T21:17:58.344Z","type":"verification","email":"daniel.olsson@sportmaterial.se"}
+{"timestamp":"2025-07-03T21:18:44.149Z","type":"file_sharing","senderName":"Nils","senderEmail":"daniel.olsson@sportmaterial.se","recipientEmail":"info@sportmaterial.se","filesCount":1,"fileNames":["shipmentlist_8919833320.pdf"],"message":"testar nils"}
