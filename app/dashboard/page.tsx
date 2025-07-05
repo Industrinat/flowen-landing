@@ -1,5 +1,5 @@
 'use client';
-
+// 🏗️ Projektrum rebuild - Starting fresh with proper Git workflow
 import { useRouter } from 'next/navigation';
 import { BarChart3, Users, Clock, FolderOpen, Kanban, MessageSquare, Settings } from 'lucide-react';
 
