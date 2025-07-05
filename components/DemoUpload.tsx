@@ -214,7 +214,20 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
             method: 'POST',
             body: formData,
           });
-          
+          // Hämta user från localStorage
+const user = localStorage.getItem('user');
+if (!user) {
+  throw new Error('Not authenticated');
+}
+
+// Riktig upload till produktionsserver
+response = await fetch(`${apiUrl}/api/upload`, {
+  method: 'POST',
+  headers: {
+    'Authorization': user  // Skicka user-data som header
+  },
+  body: formData,
+});
           data = await response.json();
         }
 

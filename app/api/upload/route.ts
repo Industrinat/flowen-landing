@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
+import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 
 const getApiUrl = (req: NextRequest) => {
   const origin = req.headers.get('origin') || req.headers.get('referer');
@@ -14,8 +15,10 @@ const getApiUrl = (req: NextRequest) => {
   return 'https://flowen.eu';
 };
 
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req: AuthenticatedRequest) => {
   try {
+    console.log('🔐 Authenticated upload by user:', req.userId, req.userEmail);
+    
     const formData = await req.formData();
     
     // Handle encrypted file upload
@@ -38,9 +41,9 @@ export async function POST(req: NextRequest) {
       await mkdir(uploadsDir, { recursive: true });
     }
 
-    // Generate unique filename
+    // Generate unique filename with user ID for isolation
     const uniqueId = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const filename = uniqueId;
+    const filename = `${req.userId}-${uniqueId}`;
     const filepath = path.join(uploadsDir, filename);
 
     // Save encrypted file
@@ -48,14 +51,16 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
     await writeFile(filepath, buffer);
 
-    // Save metadata
+    // Save metadata with user info
     const metadata = {
       iv: iv,
       originalName: originalName,
       originalSize: originalSize,
       mimeType: mimeType || 'application/octet-stream',
       uploadTime: new Date().toISOString(),
-      encryptedFilename: filename
+      encryptedFilename: filename,
+      uploadedBy: req.userId,
+      userEmail: req.userEmail
     };
     
     const metadataPath = filepath + '.meta.json';
@@ -65,7 +70,7 @@ export async function POST(req: NextRequest) {
     const apiUrl = getApiUrl(req);
     const shareUrl = `${apiUrl}/download/${filename}`;
 
-    console.log('Encrypted file uploaded:', originalName, '→', filename);
+    console.log('✅ Encrypted file uploaded by', req.userEmail, ':', originalName, '→', filename);
     console.log('Metadata saved:', filename + '.meta.json');
     console.log('Share URL:', shareUrl);
 
@@ -78,10 +83,10 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Upload error:', error);
+    console.error('❌ Upload error:', error);
     return NextResponse.json({
       success: false,
       error: 'Failed to upload file: ' + error.message
     }, { status: 500 });
   }
-}
+});
