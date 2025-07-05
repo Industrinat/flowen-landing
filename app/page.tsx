@@ -62,15 +62,7 @@ export default function Home() {
   return (
     <main className="relative w-full min-h-screen overflow-hidden text-white bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950">
       <header className="flex flex-col items-center justify-center pt-16 pb-8">
-        <div className="relative flex items-center justify-center mb-4" style={{ height: 160 }}>
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-28 bg-white rounded-3xl shadow-2xl z-0" />
-          <img
-            src="/logoFlowen.png"
-            alt="Flowen logotype"
-            className="relative z-10 h-40 w-auto max-w-xs"
-            style={{ background: "none" }}
-          />
-        </div>
+  
         <h1 className="mt-6 text-4xl md:text-6xl font-extrabold text-center drop-shadow-lg leading-tight">
           Projects and CRM for modern teams
         </h1>

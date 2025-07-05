@@ -1,7 +1,6 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
-import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export default function PrivacyPolicy() {
@@ -12,14 +11,14 @@ export default function PrivacyPolicy() {
     gdpr_consent: false,
     newsletter_consent: false
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const target = e.target as HTMLInputElement;
     const { name, value, type } = target;
     const checked = target.checked;
-    
+
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value
@@ -27,7 +26,6 @@ export default function PrivacyPolicy() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    // resten av funktionen...
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -57,7 +55,6 @@ export default function PrivacyPolicy() {
 
   return (
     <>
-      <Header />
       <main className="min-h-screen bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950 text-white px-6 py-16">
         <div className="max-w-3xl mx-auto">
           {/* Privacy Policy Content */}
@@ -65,7 +62,7 @@ export default function PrivacyPolicy() {
             <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
             <p className="text-lg mb-4">
               We only use the information you provide in this form to contact you about Flowen.
-              You will never receive more than one email per month. Your personal data will not be stored for any other purposes.
+              You will never receive more than one email per month. Your personal data will not be stored for any other purposes.    
             </p>
             <p className="text-lg mb-4">
               If you become a customer, applicable laws such as the Swedish Accounting Act (bokföringslagen) will apply to any necessary data retention.
@@ -82,7 +79,7 @@ export default function PrivacyPolicy() {
           <div className="bg-white/10 backdrop-blur rounded-2xl p-8 shadow-xl border border-white/10 mb-12">
             <h2 className="text-2xl font-bold mb-6 text-center">Have Privacy Questions?</h2>
             <p className="text-center text-indigo-300 mb-8">Contact us directly about your data privacy concerns</p>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Name</label>
@@ -96,7 +93,7 @@ export default function PrivacyPolicy() {
                   placeholder="Your name"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Email</label>
                 <input
@@ -109,7 +106,7 @@ export default function PrivacyPolicy() {
                   placeholder="your@email.com"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Message</label>
                 <textarea
@@ -135,7 +132,7 @@ export default function PrivacyPolicy() {
                     className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded bg-white/20"
                   />
                   <label className="text-sm text-white/90 leading-relaxed">
-                    I agree to the processing of my personal data according to this Privacy Policy. 
+                    I agree to the processing of my personal data according to this Privacy Policy.
                     This is required to process your inquiry. *
                   </label>
                 </div>
@@ -150,7 +147,7 @@ export default function PrivacyPolicy() {
                     className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded bg-white/20"
                   />
                   <label className="text-sm text-white/90 leading-relaxed">
-                    I would like to receive updates about Flowen's security features and product news via email. 
+                    I would like to receive updates about Flowen's security features and product news via email.
                     <span className="text-white/70 block mt-1">
                       (Optional - you can unsubscribe at any time)
                     </span>
