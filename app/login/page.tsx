@@ -14,8 +14,14 @@ export default function LoginPage() {
 
     // 🛑 Enkel dummy-validering – byt mot din egen backend senare
     if (email === 'admin@flowen.se' && password === 'flowen123') {
-      router.push('/dashboard') // logga in och skicka vidare
-    } else {
+  // Spara user session
+  localStorage.setItem('user', JSON.stringify({
+    id: 'admin-user-123',
+    email: email,
+    loginTime: Date.now()
+  }));
+  router.push('/dashboard'); // logga in och skicka vidare
+} else {
       setError('Fel e-post eller lösenord.')
     }
   }
