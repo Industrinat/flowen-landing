@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, X, Plus, Send, User, Mail } from 'lucide-react';
 import { generateEncryptionKey, encryptFile, keyToBase64 } from '@/lib/crypto';
+import { getApiUrl } from '@/lib/api-utils';
 
 // Interfaces
 interface UploadResponse {
@@ -44,13 +45,6 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
 
-  // Smart API URL detection
-  const getApiUrl = () => {
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-      return 'http://localhost:3000';
-    }
-    return ''; // Använd samma domän som frontend
-  };
 
   useEffect(() => {
     if (requireEmailVerification) {

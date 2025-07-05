@@ -4,12 +4,14 @@
 import { useEffect, useState, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { decryptFile, base64ToKey } from '@/lib/crypto';
+import { getApiUrl } from '@/lib/api-utils';  
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default function DownloadPage({ params }: PageProps) {
+  // Use React.use to unwrap params
   const { id: fileId } = use(params);
   
   const searchParams = useSearchParams();
@@ -32,29 +34,55 @@ export default function DownloadPage({ params }: PageProps) {
 
   const fetchAndDecryptFile = async () => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://flowen.eu';
-      const metadataResponse = await fetch(`${backendUrl}/api/download/${fileId}`);
+      // Check if this is a mock file (development mode)
+      if (fileId.startsWith('mock_')) {
+        // For mock files, simulate the encrypted data
+        setStatus('ready');
+        setFileInfo({
+          name: 'Demo_File.pdf',
+          size: 1024 * 50, // 50KB mock file
+          type: 'application/pdf'
+        });
+        
+        // Create a mock blob for demo purposes
+        const mockContent = new Uint8Array([37, 80, 68, 70]); // PDF header
+        const mockBlob = new Blob([mockContent], { type: 'application/pdf' });
+        setDecryptedBlob(mockBlob);
+        
+        return;
+      }
+
+      // For real files, fetch metadata from backend
+     const backendUrl = getApiUrl();
+const metadataResponse = await fetch(`${backendUrl}/api/download/${fileId}`);
       
       if (!metadataResponse.ok) {
         throw new Error('File not found');
       }
 
+      // Backend returns metadata for encrypted files
       const metadata = await metadataResponse.json();
       
       if (metadata.encrypted) {
+        // Fetch the actual encrypted file
         const encryptedFileResponse = await fetch(`${backendUrl}${metadata.url}`);
         const encryptedArrayBuffer = await encryptedFileResponse.arrayBuffer();
         
+        // Convert encryption key from base64
         if (!encryptionKey) {
-          throw new Error('Encryption key is missing');
-        }
+  throw new Error('Encryption key is missing');
+}
         const key = base64ToKey(encryptionKey);
+        
+        // Parse IV from the metadata
         const iv = base64ToKey(metadata.iv);
         
+        // Decrypt
         const encryptedData = new Uint8Array(encryptedArrayBuffer);
         const decryptedData = await decryptFile(encryptedData, key, iv);
         
-        const mimeType = metadata.mimeType || 'application/octet-stream';
+        // Create blob from decrypted data
+        const mimeType = metadata.mimeType || guessMimeType(metadata.originalName || fileId);
         const blob = new Blob([decryptedData], { type: mimeType });
         
         setDecryptedBlob(blob);
@@ -64,7 +92,11 @@ export default function DownloadPage({ params }: PageProps) {
           type: mimeType
         });
         setStatus('ready');
+      } else {
+        // For non-encrypted files, download directly
+        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/download/${fileId}`;
       }
+      
     } catch (err) {
       console.error('Decryption error:', err);
       setError(err instanceof Error ? err.message : 'Failed to decrypt file');
@@ -83,6 +115,27 @@ export default function DownloadPage({ params }: PageProps) {
     a.click();
     URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  };
+
+  const guessMimeType = (filename: string): string => {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const mimeTypes: { [key: string]: string } = {
+      'pdf': 'application/pdf',
+      'doc': 'application/msword',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'xls': 'application/vnd.ms-excel',
+      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'ppt': 'application/vnd.ms-powerpoint',
+      'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'txt': 'text/plain',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'zip': 'application/zip',
+      'rar': 'application/x-rar-compressed'
+    };
+    return mimeTypes[ext || ''] || 'application/octet-stream';
   };
 
   const formatFileSize = (bytes: number): string => {
