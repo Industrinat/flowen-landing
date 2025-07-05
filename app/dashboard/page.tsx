@@ -1,12 +1,8 @@
 'use client';
 // 🏗️ Projektrum rebuild - Starting fresh with proper Git workflow
-import { useRouter } from 'next/navigation';
-import { BarChart3, Users, Clock, FolderOpen, Kanban, MessageSquare, Settings } from 'lucide-react';
-'use client';
-// 🏗️ Projektrum rebuild - Starting fresh with proper Git workflow
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react'; // <-- LÄGG TILL useState och useEffect
+import { useEffect, useState } from 'react';
 import { BarChart3, Users, Clock, FolderOpen, Kanban, MessageSquare, Settings } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -25,16 +21,16 @@ export default function DashboardPage() {
 
   // Visa loading medan auth checkas
   if (!isAuthenticated) {
-    return <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-slate-900 text-white flex items-center justify-center">
-      <div>Loading...</div>
-    </div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-slate-900 text-white flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
   }
 
-export default function DashboardPage() {
-  const router = useRouter();
-
   const handleLogout = () => {
-    // Enkel logout - skicka tillbaka till startsidan
+    // Rensa session och skicka till startsidan
+    localStorage.removeItem('user');
     router.push('/');
   };
 
