@@ -150,13 +150,25 @@ export default function ProjectsPage() {
   };
 
   const openItem = (item: FileItem) => {
-    if (item.type === 'folder') {
-      setCurrentPath(item.path);
-      loadItems(item.path);
-    } else {
-      console.log('Opening file:', item.name);
+  if (item.type === 'folder') {
+    setCurrentPath(item.path);
+    loadItems(item.path);
+  } else {
+    console.log('Opening file:', item.name);
+    
+    // Skip metadata files
+    if (item.name.endsWith('.meta.json')) {
+      console.log('Skipping metadata file');
+      return;
     }
-  };
+    
+    // Extract file ID (filename without extension)
+    const fileId = item.name;
+    
+    // Open download URL in new tab
+    window.open(`/api/download/${fileId}`, '_blank');
+  }
+};
 
   const goBack = () => {
     const pathParts = currentPath.split('/').filter(p => p);
