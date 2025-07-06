@@ -141,7 +141,7 @@ export default function ProjectsPage() {
     formData.append('mimeType', file.type);
     formData.append('folder', currentPath);
 
-    const response = await fetch('/api/upload', {
+    const response = await fetch('/api upload', {
       method: 'POST',
       headers: {
   'Authorization': user
