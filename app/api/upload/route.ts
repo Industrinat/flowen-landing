@@ -3,7 +3,54 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
-import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
+
+// Extended interface med alla NextRequest properties
+interface AuthenticatedRequest extends NextRequest {
+  userId?: string;
+  userEmail?: string;
+}
+
+function withAuth(handler: (req: AuthenticatedRequest) => Promise<NextResponse>) {
+  return async (req: NextRequest) => {
+    try {
+      // Hämta user från localStorage via headers eller session
+      const authHeader = req.headers.get('Authorization');
+      
+      if (!authHeader) {
+        return NextResponse.json(
+          { error: 'No authorization header' }, 
+          { status: 401 }
+        );
+      }
+
+      // För POC använder vi enkel header-check
+      // I production: JWT verification, session lookup, etc.
+      const userData = JSON.parse(authHeader);
+      
+      if (!userData.id || !userData.email) {
+        return NextResponse.json(
+          { error: 'Invalid user data' }, 
+          { status: 401 }
+        );
+      }
+
+      // Skapa authenticated request object
+      const authReq = req as AuthenticatedRequest;
+      authReq.userId = userData.id;
+      authReq.userEmail = userData.email;
+
+      // Kör den riktiga handler-funktionen
+      return await handler(authReq);
+      
+    } catch (error) {
+      console.error('Auth error:', error);
+      return NextResponse.json(
+        { error: 'Authentication failed' }, 
+        { status: 401 }
+      );
+    }
+  };
+}
 
 const getApiUrl = (req: NextRequest) => {
   const origin = req.headers.get('origin') || req.headers.get('referer');
