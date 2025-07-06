@@ -53,10 +53,10 @@ export default function ProjectsPage() {
       console.log('📁 Loading files for path:', path);
       
       const response = await fetch(`/api/files?path=${encodeURIComponent(path)}`, {
-        headers: {
-          'Authorization': user
-        }
-      });
+  headers: {
+    'Authorization': 'Bearer admin@flowen.se'
+  }
+});
 
       if (response.ok) {
         const data = await response.json();
