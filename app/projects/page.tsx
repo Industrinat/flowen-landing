@@ -1,4 +1,3 @@
-// app/projects/page.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -7,13 +6,11 @@ import {
   FolderOpen, 
   Plus, 
   Upload, 
-  File, 
   MoreVertical, 
   ArrowLeft,
   Folder,
   FileText,
-  Image,
-  Download
+  Image
 } from 'lucide-react';
 
 interface FileItem {
@@ -36,7 +33,6 @@ export default function ProjectsPage() {
   const [showNewFolderDialog, setShowNewFolderDialog] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
-  // Auth check
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (!userData) {
@@ -49,7 +45,6 @@ export default function ProjectsPage() {
     loadItems('/');
   }, [router]);
 
-  // Load items from API
   const loadItems = async (path: string) => {
     try {
       const user = localStorage.getItem('user');
@@ -100,7 +95,7 @@ export default function ProjectsPage() {
       for (const file of files) {
         await uploadFile(file);
       }
-      loadItems(currentPath); // Reload items after upload
+      loadItems(currentPath);
     } catch (error) {
       console.error('Upload error:', error);
       alert('Upload failed. Please try again.');
@@ -115,7 +110,6 @@ export default function ProjectsPage() {
       throw new Error('Not authenticated');
     }
 
-    // Use same encryption as on main page
     const formData = new FormData();
     formData.append('encryptedFile', file);
     formData.append('iv', 'temp-iv-' + Date.now());
@@ -160,7 +154,6 @@ export default function ProjectsPage() {
       setCurrentPath(item.path);
       loadItems(item.path);
     } else {
-      // Open file - implement later
       console.log('Opening file:', item.name);
     }
   };
@@ -204,7 +197,6 @@ export default function ProjectsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-slate-900 text-white">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center">
             <button
@@ -230,7 +222,6 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {/* Breadcrumb */}
         <div className="mb-6">
           <div className="bg-white/10 backdrop-blur rounded-lg px-4 py-2">
             <span className="text-indigo-200">Path: </span>
@@ -238,7 +229,6 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {/* Upload Zone */}
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -256,9 +246,7 @@ export default function ProjectsPage() {
           )}
         </div>
 
-        {/* File/Folder Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {/* Back button when not in root */}
           {currentPath !== '/' && (
             <div
               onClick={goBack}
@@ -271,7 +259,6 @@ export default function ProjectsPage() {
             </div>
           )}
 
-          {/* Items */}
           {items.map((item) => (
             <div
               key={item.id}
@@ -294,7 +281,6 @@ export default function ProjectsPage() {
           ))}
         </div>
 
-        {/* Empty state */}
         {items.length === 0 && (
           <div className="text-center py-16">
             <FolderOpen className="w-16 h-16 text-white/30 mx-auto mb-4" />
@@ -303,7 +289,6 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        {/* New Folder Dialog */}
         {showNewFolderDialog && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50">
             <div className="bg-white/20 backdrop-blur rounded-2xl p-6 w-96 border border-white/10">
@@ -331,7 +316,7 @@ export default function ProjectsPage() {
                   Cancel
                 </button>
               </div>
-            </div
+            </div>
           </div>
         )}
       </div>
