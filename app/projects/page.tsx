@@ -49,50 +49,32 @@ export default function ProjectsPage() {
     loadItems('/');
   }, [router]);
 
-  // Mock data - will be replaced with API calls later
-  const loadItems = (path: string) => {
-    const mockItems: FileItem[] = [
-      {
-        id: '1',
-        name: 'Project Documentation',
-        type: 'folder',
-        uploadDate: '2025-07-06',
-        path: path + 'Project Documentation/'
-      },
-      {
-        id: '2', 
-        name: 'Images',
-        type: 'folder',
-        uploadDate: '2025-07-05',
-        path: path + 'Images/'
-      },
-      {
-        id: '3',
-        name: 'report.pdf',
-        type: 'file',
-        size: 1024000,
-        uploadDate: '2025-07-06',
-        mimeType: 'application/pdf',
-        path: path + 'report.pdf'
-      },
-      {
-        id: '4',
-        name: 'Meeting Notes',
-        type: 'folder',
-        uploadDate: '2025-07-04',
-        path: path + 'Meeting Notes/'
-      },
-      {
-        id: '5',
-        name: 'budget-2025.xlsx',
-        type: 'file',
-        size: 856000,
-        uploadDate: '2025-07-03',
-        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        path: path + 'budget-2025.xlsx'
+  // Load items from API
+  const loadItems = async (path: string) => {
+    try {
+      const user = localStorage.getItem('user');
+      if (!user) return;
+
+      console.log('📁 Loading files for path:', path);
+      
+      const response = await fetch(`/api/files?path=${encodeURIComponent(path)}`, {
+        headers: {
+          'Authorization': user
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📊 Loaded files:', data.files);
+        setItems(data.files || []);
+      } else {
+        console.error('Failed to load files:', response.status);
+        setItems([]);
       }
-    ];
-    setItems(mockItems);
+    } catch (error) {
+      console.error('Failed to load files:', error);
+      setItems([]);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -129,9 +111,10 @@ export default function ProjectsPage() {
 
   const uploadFile = async (file: File) => {
     const user = localStorage.getItem('user');
-  if (!user) {
-    throw new Error('Not authenticated');
-  }
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
     // Use same encryption as on main page
     const formData = new FormData();
     formData.append('encryptedFile', file);
@@ -141,10 +124,10 @@ export default function ProjectsPage() {
     formData.append('mimeType', file.type);
     formData.append('folder', currentPath);
 
-    const response = await fetch('/api upload', {
+    const response = await fetch('/api/upload', {
       method: 'POST',
       headers: {
-  'Authorization': user
+        'Authorization': user
       },
       body: formData
     });
@@ -348,7 +331,7 @@ export default function ProjectsPage() {
                   Cancel
                 </button>
               </div>
-            </div>
+            </div
           </div>
         )}
       </div>
