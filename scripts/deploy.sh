@@ -6,6 +6,9 @@ echo "📅 $(date)"
 
 cd /var/www/flowen
 
+# Ensure scripts are executable
+chmod +x scripts/*.sh
+
 echo "📊 Current git status:"
 git status --porcelain
 
