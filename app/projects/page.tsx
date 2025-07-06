@@ -128,6 +128,10 @@ export default function ProjectsPage() {
   };
 
   const uploadFile = async (file: File) => {
+    const user = localStorage.getItem('user');
+  if (!user) {
+    throw new Error('Not authenticated');
+  }
     // Use same encryption as on main page
     const formData = new FormData();
     formData.append('encryptedFile', file);
@@ -140,7 +144,7 @@ export default function ProjectsPage() {
     const response = await fetch('/api/upload', {
       method: 'POST',
       headers: {
-        'Authorization': JSON.stringify(user)
+  'Authorization': user
       },
       body: formData
     });
