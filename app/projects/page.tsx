@@ -29,10 +29,6 @@ interface User {
   name: string
 }
 
-interface ProjectsPageProps {
-  user?: User | null
-  onAuthRequired?: () => void
-}
 
 interface UploadResult {
   file: string
@@ -98,7 +94,7 @@ const ALLOWED_EXTENSIONS = [
   'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'dmg', 'iso',
   'ttf', 'otf', 'woff', 'woff2', 'eot',
   'db', 'sqlite', 'sqlite3', 'mdb', 'accdb'
-]
+];
 
 const ALLOWED_SPECIAL_FILES = [
   'head', 'config', 'description', 'packed-refs', 'commit_editmsg', 'index', 'fetch_head', 'orig_head',
@@ -113,11 +109,10 @@ const ALLOWED_SPECIAL_FILES = [
   'makefile', 'dockerfile', 'docker-compose.yml', 'docker-compose.yaml',
   '.vscode', '.idea', '.sublime-project', '.sublime-workspace',
   'main', 'master', 'develop', 'staging', 'production', 'local'
-]
-
-export default function ProjectsPage({ user: propUser, onAuthRequired }: ProjectsPageProps) {
+];
+ export default function ProjectsPage() {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(propUser || null)
+  const [user, setUser] = useState<User | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [files, setFiles] = useState<FileItem[]>([])
   const [folders, setFolders] = useState<FolderItem[]>([])
@@ -268,23 +263,17 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
             name: userData.name || userData.email
           })
           createSessionFromLocalStorage(userData)
-        } else if (onAuthRequired) {
-          onAuthRequired()
-        } else {
-          router.push('/login')
-        }
-      } catch (error) {
-        console.error('Auth error:', error)
-        if (onAuthRequired) {
-          onAuthRequired()
-        } else {
-          router.push('/login')
-        }
-      }
+       } else {
+  router.push('/login')
+}
+} catch (error) {
+  console.error('Auth error:', error)
+  router.push('/login')
+}
     } else {
       setLoading(false)
     }
-  }, [user, onAuthRequired, router])
+  }, [user, router])
 
   const createSessionFromLocalStorage = async (userData: any) => {
     try {
@@ -1949,7 +1938,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
               const y = e.clientY
               if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
             
-                getFolderDragHandlers(folder.id).onDragOver(null)
+        
               }
             }}
             onDrop={(e) => {
