@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Upload, FolderPlus, Folder, File, Download, Edit2, Trash2, Eye, AlertCircle } from 'lucide-react'
+import { useDragDrop } from '../hooks/useDragDrop'
 
 interface FileItem {
   id: string
@@ -127,7 +128,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [contextMenu, setContextMenu] = useState<{
-    
+
     x: number
     y: number
     item: FileItem | FolderItem
@@ -172,8 +173,6 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
   })
 
   // Drag & Drop state
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null)
 
   const LARGE_UPLOAD_CONFIG = {
     maxFileSize: 500 * 1024 * 1024,
@@ -486,7 +485,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
     console.log('- User:', user.email)
 
     // Show immediate feedback for drag & drop
-    setIsDragging(false)
+
     showToast('Processing dropped files...', 'success')
 
     try {
@@ -877,17 +876,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
         'application/vnd.ms-powerpoint'
       ]
 
-      const isOfficeFile = officeTypes.includes(detectedMimeType) || 
-                          file.name.match(/\.(docx?|xlsx?|pptx?)$/i)
-
-      if (isOfficeFile) {
-        const publicUrl = await getPublicFileUrl(file.id)
-        if (publicUrl) {
-          const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(publicUrl)}`
-          setPreviewModal({ file, url: officeViewerUrl, isOffice: true })
-          return
-        }
-      }
+    
 
       const isImage = detectedMimeType?.startsWith('image/')
       const isPDF = detectedMimeType === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
@@ -898,7 +887,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
       
       const isPreviewable = isImage || isPDF || isVideo || isAudio || isText
       
-      if (!isPreviewable && !isOfficeFile) {
+      if (!isPreviewable) {
         showToast('Preview not available for this file type. Use download instead.', 'error')
         return
       }
@@ -1539,64 +1528,6 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
     }
     setContextMenu(null)
   }
-
-  const handleDragDrop = async (e: React.DragEvent, targetFolderId: string | null) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!user) return
-    
-    console.log('🎯 DRAG DROP DEBUG:')
-    
-    // FÖRST: Kolla om det är intern fil-flyttning
-    const fileId = e.dataTransfer.getData('fileId')
-    console.log('- Internal fileId:', fileId)
-    console.log('- Target folder:', targetFolderId)
-    
-    if (fileId) {
-      // INTERN FLYTT: Fil från projektet till annan mapp
-      console.log('🔄 Moving internal file:', fileId, '→', targetFolderId)
-      
-      try {
-        const response = await fetch(`/api/project-files?id=${fileId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-user-email': user.email
-          },
-          body: JSON.stringify({ folderId: targetFolderId })
-        })
-        
-        if (response.ok) {
-          showToast('File moved successfully', 'success')
-          fetchFiles()
-        } else {
-          const errorText = await response.text()
-          console.error('❌ Move API error:', errorText)
-          throw new Error(`Move failed: ${errorText}`)
-        }
-      } catch (error) {
-        console.error('Move error:', error)
-        showToast(`Failed to move file: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
-      }
-      return
-    }
-    
-    // SEDAN: Extern upload från dator
-    const droppedFiles = Array.from(e.dataTransfer.files)
-    const droppedItems = e.dataTransfer.items
-    
-    console.log('- External files:', droppedFiles.length)
-    console.log('- External items:', droppedItems?.length)
-    
-    if (droppedFiles.length > 0 || (droppedItems && droppedItems.length > 0)) {
-      console.log('📁 Processing external files from computer...')
-      handleDroppedFiles(droppedFiles, droppedItems)
-      return
-    }
-    
-    console.log('❌ No valid drop data found')
-  }
-
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
     const toast = document.createElement('div')
     toast.className = `toast ${type}`
@@ -1617,6 +1548,20 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
     document.body.appendChild(toast)
     setTimeout(() => toast.remove(), 4000)
   }, [])
+  const {
+  isDragging,
+  dragOverFolder,
+  handleDragDrop,
+  dragEventHandlers,
+  getFolderDragHandlers
+} = useDragDrop({
+  user,
+  currentFolder,
+  showToast,
+  fetchFiles,
+  fetchFolders,
+  handleDroppedFiles
+})
 
   const getFileIcon = useCallback((mimeType: string, fileName: string) => {
     const detectedType = mimeType || detectMimeTypeFromFilename(fileName)
@@ -1990,12 +1935,10 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
             onDragOver={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              setIsDragging(true)
             }}
             onDragEnter={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              setIsDragging(true)
             }}
             onDragLeave={(e) => {
               e.preventDefault()
@@ -2005,18 +1948,18 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
               const x = e.clientX
               const y = e.clientY
               if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-                setIsDragging(false)
-                setDragOverFolder(null)
+            
+                getFolderDragHandlers(folder.id).onDragOver(null)
               }
             }}
             onDrop={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              setIsDragging(false)
-              setDragOverFolder(null)
-              console.log('📋 Drop in main container')
-              handleDragDrop(e, currentFolder)
-            }}
+            
+              console.log('🎯 Main container drop - currentFolder:', currentFolder) // ← NY RAD
+  console.log('📋 Drop in main container')
+  handleDragDrop(e, currentFolder)
+}}
           >
             <div className="space-y-2">
         
@@ -2039,6 +1982,10 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
                 <div
                   key={folder.id}
                   data-file-item="folder"
+                  draggable={true}
+    onDragStart={(e) => {
+      e.dataTransfer.setData('folderId', folder.id)
+    }}
                   onDoubleClick={() => {
                     if (!bulkMode) {
                       setCurrentFolder(folder.id)
@@ -2054,34 +2001,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
                     e.preventDefault()
                     setContextMenu({ x: e.clientX, y: e.clientY, item: folder, type: 'folder' })
                   }}
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setDragOverFolder(folder.id)
-                  }}
-                  onDragEnter={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setDragOverFolder(folder.id)
-                  }}
-                  onDragLeave={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    // Only clear if leaving the folder completely
-                    const rect = e.currentTarget.getBoundingClientRect()
-                    const x = e.clientX
-                    const y = e.clientY
-                    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-                      setDragOverFolder(null)
-                    }
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setDragOverFolder(null)
-                    console.log('📁 Drop on folder:', folder.name, folder.id)
-                    handleDragDrop(e, folder.id)
-                  }}
+{...getFolderDragHandlers(folder.id)}
                   className={`flex items-center p-3 border-b cursor-pointer group transition-colors ${
                     selectedFolders.has(folder.id) 
                       ? 'bg-blue-100 border-blue-200' 
@@ -2123,11 +2043,18 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
                   key={file.id}
                   data-file-item="file"
                   draggable={!bulkMode}
-                  onDragStart={(e) => {
-                    if (!bulkMode) {
-                      e.dataTransfer.setData('fileId', file.id)
-                    }
-                  }}
+   onDragStart={(e) => {
+  console.log('🎯 File drag started:', file.id)
+  
+  // Stäng av bulk-mode och sätt drag-data
+  if (bulkMode) {
+    setBulkMode(false)
+  }
+  
+  // Sätt alltid fileId eftersom vi stänger av bulk-mode ovan
+  e.dataTransfer.setData('fileId', file.id)
+  console.log('✅ Set fileId for drag:', file.id)
+}}
                   onContextMenu={(e) => {
                     e.preventDefault()
                     setContextMenu({ x: e.clientX, y: e.clientY, item: file, type: 'file' })
