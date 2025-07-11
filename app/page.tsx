@@ -64,7 +64,7 @@ export default function Home() {
       <header className="flex flex-col items-center justify-center pt-16 pb-8">
   
         <h1 className="mt-6 text-4xl md:text-6xl font-extrabold text-center drop-shadow-lg leading-tight">
-          Projects and CRM for modern teams
+          Project management for teams
         </h1>
         <div className={styles.customline}></div>
         <span className="mt-2 text-l md:text-2xl text-indigo-300 font-semibold tracking-wide block">

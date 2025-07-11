@@ -1,0 +1,100 @@
+// app/api/files/delete/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { unlink } from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+
+// Extended interface med alla NextRequest properties
+interface AuthenticatedRequest extends NextRequest {
+  userId?: string;
+  userEmail?: string;
+}
+
+function withAuth(handler: (req: AuthenticatedRequest) => Promise<NextResponse>) {
+  return async (req: NextRequest) => {
+    try {
+      const authHeader = req.headers.get('Authorization');
+      
+      if (!authHeader) {
+        return NextResponse.json(
+          { error: 'No authorization header' }, 
+          { status: 401 }
+        );
+      }
+
+      const userData = JSON.parse(authHeader);
+      
+      if (!userData.id || !userData.email) {
+        return NextResponse.json(
+          { error: 'Invalid user data' }, 
+          { status: 401 }
+        );
+      }
+
+      const authReq = req as AuthenticatedRequest;
+      authReq.userId = userData.id;
+      authReq.userEmail = userData.email;
+
+      return await handler(authReq);
+      
+    } catch (error) {
+      console.error('Auth error:', error);
+      return NextResponse.json(
+        { error: 'Authentication failed' }, 
+        { status: 401 }
+      );
+    }
+  };
+}
+
+export const DELETE = withAuth(async (req: AuthenticatedRequest) => {
+  try {
+    console.log('🗑️ Authenticated file deletion by user:', req.userId, req.userEmail);
+
+    const { id } = await req.json();
+
+    if (!id) {
+      return NextResponse.json({ 
+        success: false,
+        error: 'File ID is required' 
+      }, { status: 400 });
+    }
+
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    const filePath = path.join(uploadsDir, id);
+    const metadataPath = path.join(uploadsDir, id + '.meta.json');
+
+    try {
+      // Delete the actual file first
+      if (existsSync(filePath)) {
+        await unlink(filePath);
+        console.log('🗃️ File deleted:', id);
+      }
+
+      // Delete metadata file
+      if (existsSync(metadataPath)) {
+        await unlink(metadataPath);
+        console.log('📋 Metadata deleted:', id + '.meta.json');
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'File deleted successfully'
+      });
+
+    } catch (error: any) {
+      console.error('Error deleting file:', error);
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to delete file: ' + error.message
+      }, { status: 500 });
+    }
+
+  } catch (error: any) {
+    console.error('❌ File deletion error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to delete file: ' + error.message
+    }, { status: 500 });
+  }
+});

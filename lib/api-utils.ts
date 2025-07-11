@@ -1,18 +1,17 @@
-export const getApiUrl = (): string => {
+// lib/api-utils.ts
+export function getApiUrl(): string {
+  // Simple API URL detection
   if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    
-    // Development
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:3000';
-    }
-    
-    // Staging (future)
-    if (hostname === 'staging.flowen.eu') {
-      return 'https://staging-api.flowen.eu';
-    }
+    // Client-side
+    return window.location.origin
   }
   
-  // Production
-  return 'https://flowen.eu';
-};
+  // Server-side
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  
+  return process.env.NODE_ENV === 'production' 
+    ? 'https://flowen.eu'
+    : 'http://localhost:3000'
+}
