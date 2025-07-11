@@ -251,29 +251,30 @@ const ALLOWED_SPECIAL_FILES = [
     return null
   }, [])
 
+  
   useEffect(() => {
-    if (!user) {
-      try {
-        const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null
-        if (userStr) {
-          const userData = JSON.parse(userStr)
-          setUser({
-            id: userData.id || 'user-1',
-            email: userData.email,
-            name: userData.name || userData.email
-          })
-          createSessionFromLocalStorage(userData)
-       } else {
-  router.push('/login')
-}
-} catch (error) {
-  console.error('Auth error:', error)
-  router.push('/login')
-}
-    } else {
-      setLoading(false)
+  if (!user) {
+    try {
+      const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null
+      if (userStr) {
+        const userData = JSON.parse(userStr)
+        setUser({
+          id: userData.id || 'user-1',
+          email: userData.email,
+          name: userData.name || userData.email
+        })
+        createSessionFromLocalStorage(userData)
+      } else {
+          router.push('/login')
+        }
+      } catch (error) {
+      console.error('Auth error:', error)
+      router.push('/login')
     }
-  }, [user, router])
+  } else {
+    setLoading(false)
+  }
+}, [user, router])
 
   const createSessionFromLocalStorage = async (userData: any) => {
     try {
@@ -1021,7 +1022,7 @@ const ALLOWED_SPECIAL_FILES = [
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
       border: '1px solid rgb(59, 130, 246)',
       zIndex: 1000,
-      pointerEvents: 'none'
+      pointerEvents: 'none' as const
     }
   }, [dragSelect])
 
