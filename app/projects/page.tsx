@@ -74,7 +74,7 @@ const ALLOWED_TYPES = [
   'application/json', 'application/xml', 'application/javascript', 'application/typescript',
   'application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed',
   'application/x-tar', 'application/gzip'
-]
+];
 
 const ALLOWED_EXTENSIONS = [
   'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'rtf', 'odt', 'ods', 'odp',
