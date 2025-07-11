@@ -1,13 +1,26 @@
-import { defineConfig } from "eslint/config";
 import js from "@eslint/js";
-import ts from "typescript-eslint";
+import ts from "typescript-eslint"; // Du har redan detta package
 import reactPlugin from "eslint-plugin-react";
+// Uncomment när du installerat react-hooks:
+// import reactHooksPlugin from "eslint-plugin-react-hooks";
 import globals from "globals";
 
-export default defineConfig([
+export default [
+  // Base configurations
+  js.configs.recommended,
+  ...ts.configs.recommended,
+  
+  // Configuration for all TypeScript and React files
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
-    ignores: ["node_modules/**"],
+    ignores: [
+      "node_modules/**",
+      ".next/**", 
+      "out/**",
+      "dist/**",
+      "build/**"
+    ],
+    
     languageOptions: {
       parser: ts.parser,
       parserOptions: {
@@ -17,42 +30,70 @@ export default defineConfig([
       },
       globals: {
         ...globals.browser,
-        ...globals.node
+        ...globals.node,
+        React: "readonly",
+        JSX: "readonly"
       }
     },
+    
     plugins: {
-      // ESLint plugins for TypeScript and React
       "@typescript-eslint": ts.plugin,
       "react": reactPlugin
+      // Uncomment när du installerat react-hooks:
+      // "react-hooks": reactHooksPlugin
     },
-    extends: [
-      // Base ESLint recommended rules + TypeScript and React recommended rules
-      js.configs.recommended,
-      ts.configs.recommended,
-      reactPlugin.configs.recommended
-    ],
+    
     rules: {
-      // Turn off intrusive TypeScript rules for flexible development
-      "@typescript-eslint/no-explicit-any": "off",           // tillåt 'any' utan fel:contentReference[oaicite:7]{index=7}
-      "@typescript-eslint/no-unsafe-function-type": "off",   // tillåt användning av typ 'Function':contentReference[oaicite:8]{index=8}
-      "@typescript-eslint/no-empty-object-type": "off",      // tillåt användning av tomma objekttypen {}:contentReference[oaicite:9]{index=9}
-      "@typescript-eslint/ban-types": "off",                 // (säkerhetsåtgärd) tillåt 'Function' och '{}' om äldre config använder ban-types
-
-      "@typescript-eslint/no-var-requires": "off",           // tillåt require() i TypeScript:contentReference[oaicite:10]{index=10}
-      "@typescript-eslint/explicit-module-boundary-types": "off", // kräv inte explicita retur/parameter-typer
-
-      // Turn off React rules that are unnecessary or intrusive with modern TS/React
-      "react/react-in-jsx-scope": "off",   // React import ej nödvändigt för JSX:contentReference[oaicite:11]{index=11}
-      "react/prop-types": "off",          // inte relevant med TypeScript-typer:contentReference[oaicite:12]{index=12}
-
-      // Disable base rules that TypeScript handles better or conflict with TS
-      "no-undef": "off"                   // TypeScript sköter undefined-varningar:contentReference[oaicite:13]{index=13}
+      // ===== SYNTAX & CRITICAL ERRORS (KEEP THESE) =====
+      "no-undef": "error",           // Undefined variables
+      "no-unreachable": "error",     // Unreachable code
+      "no-dupe-keys": "error",       // Duplicate object keys
+      "no-empty": "error",           // Empty blocks
+      
+      // ===== TYPESCRIPT RULES (RELAXED) =====
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-function-type": "off", 
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/ban-types": "off",
+      "@typescript-eslint/no-var-requires": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-unused-vars": ["warn", { 
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_" 
+      }],
+      "@typescript-eslint/prefer-as-const": "warn",
+      
+      // ===== REACT RULES (MINIMAL) =====
+      "react/react-in-jsx-scope": "off",     // Not needed with Next.js
+      "react/prop-types": "off",             // TypeScript handles this
+      "react/display-name": "off",           // Not critical
+      "react/no-unescaped-entities": "warn", // Warning instead of error
+      
+      // ===== REACT HOOKS (BASIC) =====
+      // Installera react-hooks plugin senare om du vill ha dessa regler
+      // "react-hooks/rules-of-hooks": "error",
+      // "react-hooks/exhaustive-deps": "warn",
+      
+      // ===== GENERAL RULES (RELAXED) =====
+      "prefer-const": "warn",
+      "no-console": "off",          // Allow console.log
+      "no-debugger": "warn",        // Warning for debugger statements
+      "no-unused-expressions": "off" // Too strict for React development
     },
+    
     settings: {
-      // Automatiskt upptäcka React-version (för eslint-plugin-react)
       react: {
         version: "detect"
       }
     }
+  },
+  
+  // Specific overrides for config files
+  {
+    files: ["*.config.{js,mjs,ts}", "tailwind.config.js", "next.config.js"],
+    rules: {
+      "@typescript-eslint/no-var-requires": "off",
+      "no-undef": "off"
+    }
   }
-]);
+];

@@ -1544,40 +1544,56 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
     e.stopPropagation()
     if (!user) return
     
+    console.log('🎯 DRAG DROP DEBUG:')
+    
+    // FÖRST: Kolla om det är intern fil-flyttning
+    const fileId = e.dataTransfer.getData('fileId')
+    console.log('- Internal fileId:', fileId)
+    console.log('- Target folder:', targetFolderId)
+    
+    if (fileId) {
+      // INTERN FLYTT: Fil från projektet till annan mapp
+      console.log('🔄 Moving internal file:', fileId, '→', targetFolderId)
+      
+      try {
+        const response = await fetch(`/api/project-files?id=${fileId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-user-email': user.email
+          },
+          body: JSON.stringify({ folderId: targetFolderId })
+        })
+        
+        if (response.ok) {
+          showToast('File moved successfully', 'success')
+          fetchFiles()
+        } else {
+          const errorText = await response.text()
+          console.error('❌ Move API error:', errorText)
+          throw new Error(`Move failed: ${errorText}`)
+        }
+      } catch (error) {
+        console.error('Move error:', error)
+        showToast(`Failed to move file: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
+      }
+      return
+    }
+    
+    // SEDAN: Extern upload från dator
     const droppedFiles = Array.from(e.dataTransfer.files)
     const droppedItems = e.dataTransfer.items
     
+    console.log('- External files:', droppedFiles.length)
+    console.log('- External items:', droppedItems?.length)
+    
     if (droppedFiles.length > 0 || (droppedItems && droppedItems.length > 0)) {
+      console.log('📁 Processing external files from computer...')
       handleDroppedFiles(droppedFiles, droppedItems)
       return
     }
     
-    const fileId = e.dataTransfer.getData('fileId')
-    if (!fileId) {
-      return
-    }
-    
-    try {
-      const response = await fetch(`/api/project-files?id=${fileId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-email': user.email
-        },
-        body: JSON.stringify({ folderId: targetFolderId })
-      })
-      
-      if (response.ok) {
-        showToast('File moved successfully', 'success')
-        fetchFiles()
-      } else {
-        const errorText = await response.text()
-        throw new Error(`Move failed: ${errorText}`)
-      }
-    } catch (error) {
-      console.error('Move error:', error)
-      showToast(`Failed to move file: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
-    }
+    console.log('❌ No valid drop data found')
   }
 
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
@@ -2111,7 +2127,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
                 </div>
               ))}
 
-              {files.map(file => (
+{files.map(file => (
                 <div
                   key={file.id}
                   data-file-item="file"
@@ -2192,12 +2208,11 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
                 </div>
               ))}
             </div>
-
             <div style={getSelectionBoxStyle()} />
 
             {files.length === 0 && folders.length === 0 && (
               <div 
-                className="text-center py-20 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                className="text-center py-20 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer"
                 onDragOver={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -2211,16 +2226,36 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
                   e.stopPropagation()
                   handleDragDrop(e, currentFolder)
                 }}
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.multiple = true
+                  input.accept = '*/*'
+                  input.style.display = 'none'
+                  
+                  input.onchange = (e) => {
+                    const files = (e.target as HTMLInputElement).files
+                    if (files && files.length > 0) {
+                      handleDroppedFiles(Array.from(files))
+                    }
+                    document.body.removeChild(input)
+                  }
+                  
+                  document.body.appendChild(input)
+                  input.click()
+                }}
               >
                 <Upload className="mx-auto mb-4 text-gray-400" size={48} />
                 <p className="text-gray-500 mb-2">No files or folders yet</p>
-                <p className="text-sm text-gray-400">Drag files or folders here or click Upload</p>
+                <p className="text-sm text-gray-400">
+                  Drag files here or <span className="text-blue-600 underline">click to browse</span>
+                </p>
               </div>
             )}
 
             {(files.length > 0 || folders.length > 0) && (
               <div 
-                className="mt-6 p-8 border-2 border-dashed border-gray-200 rounded-lg text-center hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                className="mt-6 p-8 border-2 border-dashed border-gray-200 rounded-lg text-center hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer"
                 onDragOver={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -2234,14 +2269,34 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
                   e.stopPropagation()
                   handleDragDrop(e, currentFolder)
                 }}
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.multiple = true
+                  input.accept = '*/*'
+                  input.style.display = 'none'
+                  
+                  input.onchange = (e) => {
+                    const files = (e.target as HTMLInputElement).files
+                    if (files && files.length > 0) {
+                      handleDroppedFiles(Array.from(files))
+                    }
+                    document.body.removeChild(input)
+                  }
+                  
+                  document.body.appendChild(input)
+                  input.click()
+                }}
               >
-                <Upload className="mx-auto mb-2 text-gray-400" size={32} />
-                <p className="text-sm text-gray-400">Drag more files or folders here</p>
+                <Upload className="mx-auto mb-2 text-gray-400" size={24} />
+                <p className="text-sm text-gray-500">
+                  Drop more files here or <span className="text-blue-600 underline">click to browse</span>
+                </p>
               </div>
             )}
-          </div>
-        </div>
-      </div>
+          </div>  {/* Stänger file list container (p-6 relative) */}
+        </div>    {/* Stänger bg-white rounded-lg shadow */}
+      </div>      {/* Stänger max-w-7xl mx-auto */}
 
       {uploadDialogOpen && (
         <div className="dialog-overlay" onClick={() => setUploadDialogOpen(false)}>
@@ -2455,6 +2510,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
               </div>
             </div>
             
+ 
             <div className="overflow-auto" style={{ height: 'calc(100% - 80px)' }}>
               {previewModal.isOffice && (
                 <iframe 
