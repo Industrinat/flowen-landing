@@ -127,6 +127,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [contextMenu, setContextMenu] = useState<{
+    
     x: number
     y: number
     item: FileItem | FolderItem
@@ -2018,17 +2019,7 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
             }}
           >
             <div className="space-y-2">
-              {/* Drag overlay */}
-              {isDragging && (
-                <div className="fixed inset-0 bg-blue-500 bg-opacity-10 z-40 pointer-events-none flex items-center justify-center">
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg">
-                    <div className="flex items-center gap-3">
-                      <Upload size={24} />
-                      <span className="text-lg font-semibold">Drop files or folders here</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+        
 
               {bulkMode && (files.length > 0 || folders.length > 0) && (
                 <div className="flex items-center p-3 bg-blue-50 border border-blue-200 rounded">
@@ -2288,12 +2279,31 @@ export default function ProjectsPage({ user: propUser, onAuthRequired }: Project
                   input.click()
                 }}
               >
-                <Upload className="mx-auto mb-2 text-gray-400" size={24} />
-                <p className="text-sm text-gray-500">
-                  Drop more files here or <span className="text-blue-600 underline">click to browse</span>
-                </p>
-              </div>
-            )}
+  <div className="flex flex-col items-center">
+    {/* Upload ikon */}
+    <div className="mb-4">
+      <Upload className="mx-auto text-gray-400" size={40} />
+    </div>
+    
+    <p className="text-lg font-medium text-gray-700 mb-2">
+      Drop files or folders here
+    </p>
+    <p className="text-sm text-gray-500 mb-4">
+      or <span className="text-blue-600 underline font-medium cursor-pointer hover:text-blue-800">click to browse and upload</span>
+    </p>
+    
+    {/* Upload knapp */}
+    <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
+      <Upload size={16} className="text-gray-600" />
+      <span className="font-medium text-gray-700">Upload Files & Folders</span>
+    </div>
+    
+    <p className="text-xs text-gray-400 mt-4">
+      Supports entire folder structures with all subfolders and files
+    </p>
+  </div>
+</div>
+)}
           </div>  {/* Stänger file list container (p-6 relative) */}
         </div>    {/* Stänger bg-white rounded-lg shadow */}
       </div>      {/* Stänger max-w-7xl mx-auto */}
