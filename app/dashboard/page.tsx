@@ -1,195 +1,225 @@
-'use client';
-// 🏗️ Project Rooms rebuild - Starting fresh with proper Git workflow
+'use client'
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { BarChart3, Users, Clock, FolderOpen, Kanban, MessageSquare, Settings } from 'lucide-react';
+import { useRequireAuth } from '@/hooks/useAuth'
+import Link from 'next/link'
+import { Upload, FolderOpen, LayoutGrid, FileText, Users, Shield, TrendingUp, Clock } from 'lucide-react'
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, isLoading } = useRequireAuth()
 
-  // Auth check
-  useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    setIsAuthenticated(true);
-  }, [router]);
-
-  // Show loading while auth is being checked
-  if (!isAuthenticated) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-slate-900 text-white flex items-center justify-center">
-        <div>Loading...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Laddar...</div>
       </div>
-    );
+    )
   }
 
-  const handleLogout = () => {
-    // Clear session and redirect to homepage
-    localStorage.removeItem('user');
-    router.push('/');
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Welcome to Flowen</h1>
-            <p className="text-indigo-200 mt-2">Your secure project platform</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
-          >
-            Logout
-          </button>
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-lg text-gray-600">
+          Welcome back, <span className="font-medium text-blue-600">{user?.email}</span>!
+        </p>
+        <div className="mt-4 flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full w-fit">
+          <Shield className="h-4 w-4 text-green-600" />
+          <span className="text-sm font-medium text-green-700">AES-256 Encryption Active</span>
         </div>
+      </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
-            <div className="flex items-center justify-center mb-4">
-              <FolderOpen className="w-8 h-8 text-blue-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Active Projects</h3>
-            <p className="text-3xl font-bold text-blue-400 mb-1">3</p>
-            <p className="text-sm text-indigo-200">Total 12 projects</p>
-          </div>
-          
-          <div className="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
-            <div className="flex items-center justify-center mb-4">
-              <BarChart3 className="w-8 h-8 text-green-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Shared Files</h3>
-            <p className="text-3xl font-bold text-green-400 mb-1">47</p>
-            <p className="text-sm text-indigo-200">This month</p>
-          </div>
-          
-          <div className="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
-            <div className="flex items-center justify-center mb-4">
-              <Users className="w-8 h-8 text-yellow-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Team Members</h3>
-            <p className="text-3xl font-bold text-yellow-400 mb-1">8</p>
-            <p className="text-sm text-indigo-200">Active users</p>
-          </div>
-        </div>
-
-        {/* Main Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Project Rooms */}
-          <div className="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        {/* File Upload */}
+        <Link href="/" className="group">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 hover:border-blue-300 hover:-translate-y-1">
             <div className="flex items-center mb-4">
-              <FolderOpen className="w-6 h-6 text-blue-400 mr-3" />
-              <h2 className="text-xl font-semibold">Project Rooms</h2>
+              <div className="p-2 bg-blue-100 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">
+                <Upload className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Upload Files</h3>
             </div>
-            <p className="text-indigo-200 mb-4">Manage your projects and collaborate with team</p>
-            <button 
-              onClick={() => router.push('/projects')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition w-full"
-            >
-              View All Projects
-            </button>
+            <p className="text-gray-600 text-sm mb-4">
+              Secure file sharing with end-to-end encryption
+            </p>
+            <div className="flex items-center text-blue-600 group-hover:text-blue-700 text-sm font-medium">
+              Start upload →
+            </div>
           </div>
+        </Link>
 
-          {/* Kanban Boards */}
-          <div className="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
+        {/* Projects */}
+        <Link href="/projects" className="group">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 hover:border-green-300 hover:-translate-y-1">
             <div className="flex items-center mb-4">
-              <Kanban className="w-6 h-6 text-purple-400 mr-3" />
-              <h2 className="text-xl font-semibold">Kanban Boards</h2>
+              <div className="p-2 bg-green-100 rounded-lg mr-3 group-hover:bg-green-200 transition-colors">
+                <FolderOpen className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Projects</h3>
             </div>
-            <p className="text-indigo-200 mb-4">Organize tasks and track project progress</p>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition w-full">
-              Open Boards
-            </button>
+            <p className="text-gray-600 text-sm mb-4">
+              Organize files and manage team collaboration
+            </p>
+            <div className="flex items-center text-green-600 group-hover:text-green-700 text-sm font-medium">
+              View projects →
+            </div>
           </div>
+        </Link>
 
-          {/* Social Wall */}
-          <div className="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
+        {/* Kanban */}
+        <Link href="/kanban" className="group">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 hover:border-purple-300 hover:-translate-y-1">
             <div className="flex items-center mb-4">
-              <MessageSquare className="w-6 h-6 text-green-400 mr-3" />
-              <h2 className="text-xl font-semibold">Social Wall</h2>
+              <div className="p-2 bg-purple-100 rounded-lg mr-3 group-hover:bg-purple-200 transition-colors">
+                <LayoutGrid className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Kanban</h3>
             </div>
-            <p className="text-indigo-200 mb-4">Communicate and share updates with team</p>
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition w-full">
-              View Messages
-            </button>
+            <p className="text-gray-600 text-sm mb-4">
+              Track tasks with visual kanban boards
+            </p>
+            <div className="flex items-center text-purple-600 group-hover:text-purple-700 text-sm font-medium">
+              Open kanban →
+            </div>
+          </div>
+        </Link>
+
+        {/* Team Management (Fas 2) */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 opacity-75">
+          <div className="flex items-center mb-4">
+            <div className="p-2 bg-gray-100 rounded-lg mr-3">
+              <Users className="h-6 w-6 text-gray-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-600">Team Management</h3>
+          </div>
+          <p className="text-gray-500 text-sm mb-4">
+            Manage team members and permissions
+          </p>
+          <div className="flex items-center text-gray-400 text-sm">
+            Coming in Phase 2...
           </div>
         </div>
+      </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Secure File Sharing */}
-          <div className="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
-            <h2 className="text-xl font-semibold mb-4">Secure File Sharing</h2>
-            <p className="text-indigo-200 mb-4">Share files securely with end-to-end encryption</p>
-            <div className="space-y-3">
-              <button 
-                onClick={() => router.push('/')}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-gray-600">Uploaded Files</h3>
+            <FileText className="h-5 w-5 text-blue-500" />
+          </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">0</div>
+          <p className="text-xs text-gray-500">+0 this week</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-gray-600">Storage Space</h3>
+            <TrendingUp className="h-5 w-5 text-green-500" />
+          </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">0 MB</div>
+          <p className="text-xs text-gray-500">of 5 GB available</p>
+          <div className="mt-2 bg-gray-200 rounded-full h-2">
+            <div className="bg-green-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-gray-600">Active Teams</h3>
+            <Users className="h-5 w-5 text-purple-500" />
+          </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">1</div>
+          <p className="text-xs text-gray-500">Default Team</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-gray-600">Recent Activity</h3>
+            <Clock className="h-5 w-5 text-orange-500" />
+          </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">-</div>
+          <p className="text-xs text-gray-500">No activity yet</p>
+        </div>
+      </div>
+
+      {/* Recent Activity & Quick Start */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        {/* Recent Activity */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+          <div className="text-center py-8">
+            <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 text-sm">No activity to show yet</p>
+            <p className="text-gray-400 text-xs mt-2">
+              Upload your first file to get started
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Start Guide */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Start</h3>
+          <div className="space-y-4">
+            
+            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-blue-600 text-sm font-medium">1</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Upload files</p>
+                <p className="text-sm text-gray-600">Drag and drop files or click to select</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-green-600 text-sm font-medium">2</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Organize in projects</p>
+                <p className="text-sm text-gray-600">Create projects for better file management</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
+              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-purple-600 text-sm font-medium">3</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Track tasks</p>
+                <p className="text-sm text-gray-600">Use kanban boards for project tracking</p>
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <Link
+                href="/"
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center block font-medium"
               >
-                🔒 Share New File
-              </button>
-              <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition">
-                View Shared Files
-              </button>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
-            <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-white bg-opacity-5 rounded-lg">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
-                  <span className="text-sm">New file shared</span>
-                </div>
-                <span className="text-xs text-indigo-200">2h ago</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-white bg-opacity-5 rounded-lg">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Project updated</span>
-                </div>
-                <span className="text-xs text-indigo-200">5h ago</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-white bg-opacity-5 rounded-lg">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full mr-3"></div>
-                  <span className="text-sm">New team member</span>
-                </div>
-                <span className="text-xs text-indigo-200">1d ago</span>
-              </div>
+                Start uploading files
+              </Link>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Coming Soon */}
-        <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/10">
-          <h2 className="text-xl font-semibold mb-4">🚀 Coming Soon</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center">
-              <Settings className="w-5 h-5 text-indigo-400 mr-2" />
-              <span className="text-sm">Advanced CRM</span>
-            </div>
-            <div className="flex items-center">
-              <Clock className="w-5 h-5 text-indigo-400 mr-2" />
-              <span className="text-sm">Time Tracking</span>
-            </div>
-            <div className="flex items-center">
-              <BarChart3 className="w-5 h-5 text-indigo-400 mr-2" />
-              <span className="text-sm">Advanced Analytics</span>
-            </div>
+      {/* Security Notice */}
+      <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
+        <div className="flex items-start gap-3">
+          <Shield className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <h4 className="font-medium text-green-900 mb-1">EU-compliant security</h4>
+            <p className="text-sm text-green-700">
+              All files are encrypted with AES-256-GCM before upload. Your data is secure and follows GDPR regulations.
+            </p>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

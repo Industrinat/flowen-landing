@@ -1,7 +1,12 @@
+'use client'
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Header() {
+  const { user, logout, isLoading } = useAuth();
+
   return (
     <header className="bg-gradient-to-r from-indigo-950 to-indigo-900 border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 py-4">
@@ -30,9 +35,28 @@ export default function Header() {
             <Link href="/privacy-policy" className="text-white/80 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/login" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors">
-              Login
-            </Link>
+            
+            {/* Auth section */}
+            {isLoading ? (
+              <span className="text-white/60">Loading...</span>
+            ) : user ? (
+              <div className="flex items-center space-x-4">
+                <Link href="/dashboard" className="text-white/80 hover:text-white transition-colors">
+                  Dashboard
+                </Link>
+                <span className="text-white/60">{user.email}</span>
+                <button 
+                  onClick={logout}
+                  className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors">
+                Login
+              </Link>
+            )}
           </nav>
 
           {/* Mobile menu button */}

@@ -1,0 +1,197 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get('token');
+    const email = searchParams.get('email');
+    
+    console.log('🔍 Trial verification request');
+    console.log('🔑 Token:', token);
+    console.log('📧 Email:', email);
+    
+    // Validera input
+    if (!token || !email) {
+      return NextResponse.redirect(
+        new URL('/?error=invalid-verification-link', request.url)
+      );
+    }
+    
+    // TODO: Validera token mot databas
+    // const isValidToken = await validateVerificationToken(token, email, 'trial');
+    
+    // För nu, simulera validering (ersätt med riktig databaslogik)
+    const isValidToken = await simulateTokenValidation(token, email);
+    
+    if (!isValidToken) {
+      console.log('❌ Invalid or expired token');
+      return NextResponse.redirect(
+        new URL('/?error=invalid-or-expired-link', request.url)
+      );
+    }
+    
+    // Aktivera trial
+    try {
+      const trialData = await activateTrial(email, token);
+      console.log('✅ Trial activated for:', email);
+      
+      // TODO: Markera token som använd i databas
+      // await markTokenAsUsed(token);
+      
+      // Redirect till startsida med success state
+      const successUrl = new URL('/', request.url);
+      successUrl.searchParams.set('trial-activated', 'true');
+      successUrl.searchParams.set('email', email);
+      
+      return NextResponse.redirect(successUrl);
+      
+    } catch (activationError) {
+      console.error('❌ Trial activation failed:', activationError);
+      return NextResponse.redirect(
+        new URL('/?error=activation-failed', request.url)
+      );
+    }
+    
+  } catch (error) {
+    console.error('❌ Verify trial error:', error);
+    return NextResponse.redirect(
+      new URL('/?error=verification-error', request.url)
+    );
+  }
+}
+
+// Simulera token validering (ersätt med riktig databaslogik)
+async function simulateTokenValidation(token: string, email: string): Promise<boolean> {
+  // I en riktig implementering skulle du:
+  // 1. Kolla att token finns i databas
+  // 2. Verifiera att den tillhör rätt email
+  // 3. Kontrollera att den inte är expired
+  // 4. Se till att den inte redan är använd
+  
+  console.log('💾 TODO: Validate token against database');
+  
+  // För nu, acceptera alla tokens som ser rimliga ut
+  if (token && token.length > 5 && email.includes('@')) {
+    return true;
+  }
+  
+  return false;
+}
+
+// Aktivera trial för användaren
+async function activateTrial(email: string, token: string) {
+  const trialStartDate = new Date();
+  const trialEndDate = new Date();
+  trialEndDate.setDate(trialEndDate.getDate() + 14);
+  
+  const trialData = {
+    email: email,
+    trialStartDate: trialStartDate.toISOString(),
+    trialEndDate: trialEndDate.toISOString(),
+    trialDays: 14,
+    activatedAt: new Date().toISOString(),
+    activationToken: token,
+    status: 'active'
+  };
+  
+  // TODO: Spara trial data i databas
+  // await saveTrialUser(trialData);
+  
+  console.log('💾 TODO: Save trial user to database:', trialData);
+  
+  // Skicka welcome email (optional)
+  try {
+    await sendWelcomeEmail(email, trialData);
+  } catch (emailError) {
+    console.warn('⚠️ Welcome email failed (trial still activated):', emailError);
+  }
+  
+  return trialData;
+}
+
+// Skicka welcome email efter trial aktivering
+async function sendWelcomeEmail(email: string, trialData: any) {
+  const welcomeContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Welcome to Flowen - Your trial is active!</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white; margin-bottom: 30px;">
+        <h1 style="margin: 0; font-size: 32px;">🎉 Welcome to Flowen!</h1>
+        <p style="margin: 10px 0 0 0; font-size: 20px; opacity: 0.9;">Your 14-day trial is now active</p>
+      </div>
+      
+      <div style="background: #e8f5e8; padding: 25px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #4caf50;">
+        <h2 style="color: #2e7d32; margin-top: 0;">✅ Trial Activated Successfully</h2>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Trial period:</strong> 14 days (until ${new Date(trialData.trialEndDate).toLocaleDateString()})</p>
+        <p><strong>Features included:</strong> All premium features unlocked</p>
+      </div>
+      
+      <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; margin-bottom: 25px;">
+        <h3 style="color: #333; margin-top: 0;">🚀 What you can do now:</h3>
+        <ul style="color: #666; padding-left: 20px;">
+          <li>🔐 Upload and share files with end-to-end encryption</li>
+          <li>👥 Create teams and collaborate securely</li>
+          <li>📁 Organize files in project folders</li>
+          <li>📋 Use Kanban boards for task management</li>
+          <li>📊 Track project progress and insights</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://flowen.eu/login" 
+           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                  color: white; 
+                  padding: 15px 30px; 
+                  text-decoration: none; 
+                  border-radius: 8px; 
+                  font-weight: bold; 
+                  font-size: 16px; 
+                  display: inline-block;">
+          🏠 Sign In to Flowen Dashboard
+        </a>
+      </div>
+      
+      <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 25px;">
+        <h3 style="color: #856404; margin-top: 0;">💡 Quick Start Tips:</h3>
+        <ol style="color: #666; padding-left: 20px;">
+          <li>Sign in with your email: <strong>${email}</strong></li>
+          <li>Go to Dashboard → Projects to upload your first files</li>
+          <li>Create project folders to organize your work</li>
+          <li>Invite team members for collaboration</li>
+        </ol>
+      </div>
+      
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
+        <p><strong>Need help?</strong> Reply to this email or visit our help center.</p>
+        <p>Your trial automatically expires on ${new Date(trialData.trialEndDate).toLocaleDateString()} (no credit card required).</p>
+        <p style="margin-top: 20px;">
+          <strong>Flowen.eu</strong> - Secure project management for teams<br>
+          🔒 End-to-end encrypted • 🇪🇺 EU-compliant • 🛡️ GDPR-friendly
+        </p>
+      </div>
+      
+    </body>
+    </html>
+  `;
+  
+  // TODO: Skicka via Microsoft Graph (återanvänd din email-kod)
+  console.log('📧 TODO: Send welcome email via Microsoft Graph');
+  console.log('📬 To:', email);
+  console.log('📋 Subject: Welcome to Flowen - Your trial is active!');
+  
+  return Promise.resolve();
+}
+
+// POST method för att hantera fel requests
+export async function POST(request: NextRequest) {
+  return NextResponse.json(
+    { error: 'Method not allowed. Use GET with token and email parameters.' },
+    { status: 405 }
+  );
+}

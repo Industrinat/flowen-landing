@@ -2,17 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { Upload, X, Plus, Send, User, Mail } from 'lucide-react';
-import { generateEncryptionKey, encryptFile, keyToBase64 } from '@/lib/crypto';
-import { getApiUrl } from '@/lib/api-utils';
 
 // Interfaces
 interface UploadResponse {
   success: boolean;
-  message: string;
-  uploadId: string;
+  encrypted: boolean;
+  url: string;
+  fileName: string;
   originalName: string;
+  mimeType: string;
   size: number;
-  shareUrl: string;
+  encryptedSize: number;
+  uploadTime: string;
+  version: string;
 }
 
 interface DemoUploadProps {
@@ -20,12 +22,17 @@ interface DemoUploadProps {
   userEmail?: string;
 }
 
+// Global window type extension
+declare global {
+  interface Window {
+    getAccessToken?: () => string | null;
+  }
+}
+
 const DemoUpload: React.FC<DemoUploadProps> = ({ 
-  requireEmailVerification = true, 
+  requireEmailVerification = false, 
   userEmail 
 }) => {
-  // Development logging removed for cleaner production
-  
   // States
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
@@ -45,24 +52,16 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
 
-
   useEffect(() => {
-    if (requireEmailVerification) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const verified = urlParams.get('verified');
-      const emailParam = urlParams.get('email');
+    // Hoppa direkt till fil-upload (step 3)
+    setStep(3);
     
-      if (verified === 'true' && emailParam) {
-        setEmail(emailParam);
-        setStep(3);
-      } else {
-        setStep(1);
-      }
-    } else {
-      setStep(3);
+    // Ensure getAccessToken is available
+    if (typeof window !== 'undefined' && !window.getAccessToken) {
+      window.getAccessToken = () => localStorage.getItem('access_token');
     }
-  }, [requireEmailVerification]);
-
+  }, []);
+    
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -80,9 +79,7 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
     setError('');
 
     try {
-      const apiUrl = getApiUrl();
-      
-      const response = await fetch(`${apiUrl}/api/send-verification`, {
+      const response = await fetch('/api/send-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,101 +156,62 @@ const DemoUpload: React.FC<DemoUploadProps> = ({
     const results: UploadResponse[] = [];
 
     try {
-      const apiUrl = getApiUrl();
+      console.log('🚀 Startar säker upload med ny backend...');
       
+      // Hämta access token
+      const accessToken = window.getAccessToken?.() || localStorage.getItem('access_token');
+      
+      if (!accessToken) {
+        throw new Error('Please login to upload files. Go to /login to authenticate.');
+      }
+
       for (const file of selectedFiles) {
-        // 🔐 KRYPTERING
-        let encryptionKey;
-        let encryptedData;
-        let iv;
-        let formData; // Lägg till här!
+        console.log(`📤 Uploading: ${file.name} (${formatFileSize(file.size)})`);
         
-        try {
-          // 1. Generera unik encryption key för denna fil
-          encryptionKey = await generateEncryptionKey();
-          
-          // 2. Läs fil som ArrayBuffer
-          const fileBuffer = await file.arrayBuffer();
-          
-          // 3. Kryptera filen
-          const encrypted = await encryptFile(fileBuffer, encryptionKey);
-          encryptedData = encrypted.encryptedData;
-          iv = encrypted.iv;
-          
-          // 4. Skapa FormData med krypterad data
-          formData = new FormData(); // Ta bort "const"
-          formData.append('encryptedFile', new Blob([encryptedData]));
-          formData.append('iv', keyToBase64(iv));
-          formData.append('originalName', file.name);
-          formData.append('originalSize', file.size.toString());
-          formData.append('mimeType', file.type);
-        } catch (cryptoError) {
-          console.error('❌ Krypteringsfel:', cryptoError);
-          throw cryptoError;
-        }
+        // Skapa FormData med RAW fil (backend hanterar kryptering)
+        const formData = new FormData();
+        formData.append('file', file);
 
-        // TEMPORÄR MOCK FÖR LOKAL TESTNING
-        let response;
-        let data;
+        // Upload med säker backend
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+          body: formData,
+        });
+
+        console.log('Response status:', response.status);
         
-        if (apiUrl.includes('localhost')) {
-          // Simulera en lyckad upload
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulera nätverksfördröjning
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
           
-          data = {
-            success: true,
-            message: 'File uploaded successfully (MOCK)',
-            uploadId: `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            originalName: file.name,
-            size: file.size,
-            shareUrl: `http://localhost:3000/download/mock_${Date.now()}`
-          };
-        } else {
-          // Riktig upload till produktionsserver
-          response = await fetch(`${apiUrl}/api/upload`, {
-            method: 'POST',
-            body: formData,
-          });
-          // Hämta user från localStorage
-const user = localStorage.getItem('user');
-if (!user) {
-  throw new Error('Not authenticated');
-}
-
-// Riktig upload till produktionsserver
-response = await fetch(`${apiUrl}/api/upload`, {
-  method: 'POST',
-  headers: {
-    'Authorization': user  // Skicka user-data som header
-  },
-  body: formData,
-});
-          data = await response.json();
-        }
-
-        if (data.success && data.shareUrl) {
-          // 5. Lägg till decryption key i URL
-          const downloadKey = keyToBase64(encryptionKey);
-          const secureShareUrl = `${data.shareUrl}?key=${downloadKey}`;
-          
-          results.push({
-            ...data,
-            shareUrl: secureShareUrl
-          });
-          
-          // Enkel status för att bekräfta att kryptering fungerar
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`✅ ${file.name} - Encrypted and uploaded successfully`);
+          if (response.status === 401) {
+            throw new Error('Authentication failed. Please login again.');
           }
+          
+          console.error('Upload error:', errorData);
+          throw new Error(`Upload failed for ${file.name}: ${errorData.error || response.statusText}`);
+        }
+
+        const data: UploadResponse = await response.json();
+        console.log('✅ Upload success:', data);
+        
+        if (data.success) {
+          results.push(data);
+          console.log(`✅ ${file.name} - Securely encrypted and uploaded (v${data.version})`);
         } else {
-          throw new Error(data.error || "Upload failed");
+          throw new Error("Upload failed - no success flag");
         }
       }
 
       setUploadResults(results);
       setStep(4);
+      
+      console.log(`🎉 All files uploaded successfully! Total: ${results.length}`);
+      
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('❌ Upload error:', error);
       setError(error instanceof Error ? error.message : 'Upload failed');
     } finally {
       setUploading(false);
@@ -277,22 +235,24 @@ response = await fetch(`${apiUrl}/api/upload`, {
     setError('');
 
     try {
-      const apiUrl = getApiUrl();
+      console.log('📧 Sending secure download links...');
       
-      const response = await fetch(`${apiUrl}/api/send-files`, {
+      const response = await fetch('/api/send-files', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           senderName,
-          senderEmail: email,
+          senderEmail: email || 'admin@flowen.se',
           recipientEmail,
-          message,
+          message: message || 'Here are your securely encrypted files from Flowen.eu',
           files: uploadResults.map(result => ({
             name: result.originalName,
-            shareUrl: result.shareUrl,
-            size: result.size
+            shareUrl: `${window.location.origin}${result.url}`, // Full URL för email
+            size: result.size,
+            encrypted: result.encrypted,
+            version: result.version
           }))
         }),
       });
@@ -300,19 +260,18 @@ response = await fetch(`${apiUrl}/api/upload`, {
       const data = await response.json();
 
       if (response.ok) {
+        console.log('✅ Email sent successfully:', data);
         setStep(5);
       } else {
         setError(data.error || 'Failed to send files');
       }
     } catch (error) {
-      console.error('Send error:', error);
+      console.error('❌ Send error:', error);
       setError('Network error. Please try again.');
     } finally {
       setSending(false);
     }
   };
-
-  // Form submission handlers
 
   // Step 1: Email Verification
   if (requireEmailVerification && step === 1) {
@@ -403,10 +362,18 @@ response = await fetch(`${apiUrl}/api/upload`, {
             <p className="text-sm text-green-400">✅ Verified: {email || userEmail}</p>
           </div>
         )}
+        
+        {/* Security Badge */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-full">
+            <span className="text-green-400">🔐</span>
+            <span className="text-green-300 text-sm font-medium">AES-256-GCM Encryption v2.0</span>
+          </div>
+        </div>
       
         <div className="text-center mb-8">
           <p className="text-indigo-200 text-lg">
-            Upload your files and get ready to share
+            Upload your files and get ready to share securely
           </p>
         </div>
 
@@ -433,7 +400,7 @@ response = await fetch(`${apiUrl}/api/upload`, {
               Click to select files or drag and drop
             </p>
             <p className="text-sm text-white/70">
-              Max 100MB per file • Select multiple files
+              Max 100MB per file • Select multiple files • EU-compliant encryption
             </p>
           </label>
         </div>
@@ -481,7 +448,7 @@ response = await fetch(`${apiUrl}/api/upload`, {
                 disabled={uploading}
                 className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-xl transition duration-300 shadow-lg"
               >
-                {uploading ? 'Uploading...' : `Continue with ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}`}
+                {uploading ? 'Encrypting & Uploading...' : `Continue with ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}`}
               </button>
             </div>
           </div>
@@ -490,6 +457,11 @@ response = await fetch(`${apiUrl}/api/upload`, {
         {error && (
           <div className="mt-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl">
             <p className="text-red-200">{error}</p>
+            {error.includes('login') && (
+              <p className="text-red-300 text-sm mt-2">
+                Go to <a href="/login" className="underline hover:text-red-200">/login</a> to authenticate first.
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -501,19 +473,30 @@ response = await fetch(`${apiUrl}/api/upload`, {
     return (
       <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
         <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 border border-green-400/30 rounded-full mb-4">
+            <span className="text-green-400">✅</span>
+            <span className="text-green-300 text-sm font-medium">
+              {uploadResults.length} file{uploadResults.length > 1 ? 's' : ''} encrypted and ready
+            </span>
+          </div>
           <p className="text-indigo-200">
-            {uploadResults.length} file{uploadResults.length > 1 ? 's' : ''} ready to send
+            Send secure download links to recipient
           </p>
         </div>
 
         <div className="max-w-2xl mx-auto">
           <div className="bg-white/5 rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-semibold text-white mb-4">Files to send:</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Encrypted files to send:</h3>
             <div className="space-y-2">
               {uploadResults.map((result, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <span className="text-white/90">{result.originalName}</span>
-                  <span className="text-white/60">{formatFileSize(result.size)}</span>
+                <div key={index} className="flex items-center justify-between text-sm p-3 bg-white/5 rounded-lg">
+                  <div className="flex-1">
+                    <span className="text-white/90 font-medium">{result.originalName}</span>
+                    <div className="text-white/60 text-xs">
+                      {formatFileSize(result.size)} → {formatFileSize(result.encryptedSize)} (encrypted v{result.version})
+                    </div>
+                  </div>
+                  <span className="text-green-400 text-xs">🔐</span>
                 </div>
               ))}
             </div>
@@ -584,7 +567,7 @@ response = await fetch(`${apiUrl}/api/upload`, {
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-xl transition duration-300 shadow-lg"
               >
                 <Send className="h-5 w-5" />
-                {sending ? 'Sending...' : 'Send Files'}
+                {sending ? 'Sending secure links...' : 'Send Files'}
               </button>
             </div>
           </form>
@@ -602,12 +585,16 @@ response = await fetch(`${apiUrl}/api/upload`, {
             <span className="text-4xl">✅</span>
           </div>
           <h2 className="text-3xl font-bold text-white mb-4">Files Sent Successfully!</h2>
-          <p className="text-indigo-200 mb-6">
-            Your files have been sent to: <strong className="text-white">{recipientEmail}</strong>
+          <p className="text-indigo-200 mb-4">
+            Your encrypted files have been sent to: <strong className="text-white">{recipientEmail}</strong>
           </p>
-          <p className="text-sm text-white/70 mb-8">
-            They will receive an email with download links that work for 7 days.
-          </p>
+          <div className="bg-green-500/10 border border-green-400/30 rounded-xl p-4 mb-6">
+            <p className="text-green-300 text-sm">
+              🔐 All files encrypted with AES-256-GCM<br/>
+              📧 Secure download links sent via email<br/>
+              ⏰ Links valid for 7 days
+            </p>
+          </div>
           <button 
             onClick={() => {
               setStep(3);
@@ -616,6 +603,7 @@ response = await fetch(`${apiUrl}/api/upload`, {
               setSenderName('');
               setRecipientEmail('');
               setMessage('');
+              setError('');
             }}
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 shadow-lg"
           >

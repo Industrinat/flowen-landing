@@ -1,0 +1,26 @@
+### Test Trial Signup API
+POST http://localhost:3000/api/trial-signup
+Content-Type: application/json
+
+{
+  "email": "test@company.com",
+  "acceptMarketing": true
+}
+
+### Test with invalid email
+POST http://localhost:3000/api/trial-signup
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "acceptMarketing": true
+}
+
+### Test without accepting terms
+POST http://localhost:3000/api/trial-signup
+Content-Type: application/json
+
+{
+  "email": "test@company.com",
+  "acceptMarketing": false
+}

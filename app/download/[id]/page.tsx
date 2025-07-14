@@ -64,9 +64,21 @@ const metadataResponse = await fetch(`${backendUrl}/api/download/${fileId}`);
       const metadata = await metadataResponse.json();
       
       if (metadata.encrypted) {
-        // Fetch the actual encrypted file
-        const encryptedFileResponse = await fetch(`${backendUrl}${metadata.url}`);
-        const encryptedArrayBuffer = await encryptedFileResponse.arrayBuffer();
+  // Fetch the actual encrypted file
+  console.log('Fetching encrypted file from:', metadata.url);
+  const encryptedFileResponse = await fetch(metadata.url);
+  
+  console.log('Encrypted file response status:', encryptedFileResponse.status);
+  console.log('Response OK:', encryptedFileResponse.ok);
+  
+  if (!encryptedFileResponse.ok) {
+    const errorText = await encryptedFileResponse.text();
+    console.error('Failed to fetch encrypted file:', errorText);
+    throw new Error(`Failed to fetch encrypted file: ${encryptedFileResponse.status}`);
+  }
+  
+  const encryptedArrayBuffer = await encryptedFileResponse.arrayBuffer();
+  console.log('Encrypted data size:', encryptedArrayBuffer.byteLength);
         
         // Convert encryption key from base64
         if (!encryptionKey) {
