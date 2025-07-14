@@ -297,7 +297,9 @@ export default function KanbanPage() {
                         <Upload size={16} />
                       </button>
                       <input
-                        ref={(el) => fileInputRefs.current[column.id] = el}
+                        ref={(el) => {
+  fileInputRefs.current[column.id] = el;
+}}
                         type="file"
                         multiple
                         className="hidden"

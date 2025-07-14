@@ -34,6 +34,16 @@ export function withAuth(
       // Verify JWT token
       console.log('🔍 Verifying token...') // DEBUG
       const payload = verifyAccessToken(token)
+      // Add null check
+if (!payload) {
+  console.log('❌ Invalid token') // DEBUG
+  return NextResponse.json(
+    { error: 'Invalid or expired token' },
+    { status: 401 }
+  )
+}
+
+console.log('✅ Token verified! User:', payload.userId) // DEBUG
       console.log('✅ Token verified! User:', payload.userId) // DEBUG
       
       // Create authenticated request
@@ -55,9 +65,30 @@ export function withAuth(
   }
 }
 
-// Helper function for easier use in API routes
+/// Helper function for easier use in API routes
 export function requireAuth(
   handler: (req: AuthenticatedRequest) => Promise<NextResponse>
 ) {
   return withAuth(handler)
+}
+
+// JWT session management functions
+export async function createSession(userData: { id: string, email: string, name: string }) {
+  // TODO: Implementera med din JWT logic från lib/auth/jwt.ts
+  console.log('🔄 TODO: Connect to JWT createSession with:', userData);
+  
+  // Return a session ID string, not an object
+  return 'dummy-session-id-' + Date.now();
+}
+
+export async function deleteSession() {
+  // TODO: Implementera JWT session deletion
+  console.log('🔄 TODO: Connect to JWT deleteSession');
+  return { success: true };
+}
+
+export async function getSession(request: any) {
+  // TODO: Implementera JWT session validation
+  console.log('🔄 TODO: Connect to JWT getSession');
+  return null;
 }

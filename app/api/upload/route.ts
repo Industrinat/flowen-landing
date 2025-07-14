@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       console.error('❌ KRITISKT: Dekryptering misslyckades!', verifyError);
       return NextResponse.json({
         error: 'Encryption verification failed',
-        details: verifyError.message
+        details: verifyError instanceof Error ? verifyError.message : 'Unknown error'
       }, { status: 500 });
     }
     

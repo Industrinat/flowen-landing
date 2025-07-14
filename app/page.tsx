@@ -1,29 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from 'next/navigation';
 import HowItWorks from '../components/HowItWorks';
 import Testimonials from '../components/Testimonials';
 import styles from './page.module.css';
 import { BarChart3, Users, Clock, ArrowRight, Shield, FileText, Star } from 'lucide-react';
 
-export default function Home() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState('');
-
-  // Trial signup state
-  const [email, setEmail] = useState('');
-  const [acceptTerms, setAcceptTerms] = useState(false);
-  const [isTrialLoading, setIsTrialLoading] = useState(false);
-  const [trialError, setTrialError] = useState('');
-  const [trialStep, setTrialStep] = useState(1); // 1: signup, 2: check email, 3: verified
-
-  // Trial success state
+// Separate component for trial success handling
+function TrialSuccessHandler() {
+  const searchParams = useSearchParams();
   const [showTrialSuccess, setShowTrialSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const searchParams = useSearchParams();
 
-  // Handle trial success from email verification
   useEffect(() => {
     const trialActivated = searchParams.get('trial-activated');
     const emailParam = searchParams.get('email');
@@ -39,6 +28,40 @@ export default function Home() {
       }, 5000);
     }
   }, [searchParams]);
+
+  return (
+    <>
+      {/* Trial Success Banner */}
+      {showTrialSuccess && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-green-500 text-white p-4 text-center shadow-lg">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-xl font-bold">🎉 Trial Activated Successfully!</h2>
+            <p className="mt-1">
+              Welcome {userEmail}! Your 14-day free trial is now active.
+            </p>
+            <button 
+              onClick={() => setShowTrialSuccess(false)}
+              className="ml-4 text-green-100 hover:text-white"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default function Home() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  // Trial signup state
+  const [email, setEmail] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [isTrialLoading, setIsTrialLoading] = useState(false);
+  const [trialError, setTrialError] = useState('');
+  const [trialStep, setTrialStep] = useState(1); // 1: signup, 2: check email, 3: verified
 
   const handleTrialSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,23 +157,10 @@ export default function Home() {
   return (
     <div className="relative w-full min-h-screen overflow-hidden text-white bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950">
       
-      {/* Trial Success Banner */}
-      {showTrialSuccess && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-green-500 text-white p-4 text-center shadow-lg">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl font-bold">🎉 Trial Activated Successfully!</h2>
-            <p className="mt-1">
-              Welcome {userEmail}! Your 14-day free trial is now active.
-            </p>
-            <button 
-              onClick={() => setShowTrialSuccess(false)}
-              className="ml-4 text-green-100 hover:text-white"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Wrap trial success handler in Suspense */}
+      <Suspense fallback={<div></div>}>
+        <TrialSuccessHandler />
+      </Suspense>
 
       <header className="flex flex-col items-center justify-center pt-16 pb-8">
         
@@ -170,7 +180,7 @@ export default function Home() {
       </header>
 
       {/* Trial Signup Section */}
-      <div className={`mt-24 w-full flex justify-center ${showTrialSuccess ? 'mt-32' : ''}`}>
+      <div className="mt-24 w-full flex justify-center">
         <div className="max-w-4xl mx-auto p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
           
           {trialStep === 1 ? (

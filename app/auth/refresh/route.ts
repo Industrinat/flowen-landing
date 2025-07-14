@@ -14,7 +14,15 @@ export async function POST(request: NextRequest) {
     
     const decoded = verifyRefreshToken(refreshToken)
     
-    // Generera nya tokens
+    // Null check first
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Invalid refresh token' },
+        { status: 401 }
+      )
+    }
+
+    // Now TypeScript knows decoded is not null - generate new tokens
     const tokens = generateTokens({
       userId: decoded.userId,
       email: 'admin@flowen.se', // TODO: Hämta från DB

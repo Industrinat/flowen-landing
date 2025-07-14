@@ -1,4 +1,4 @@
-// app/api/download/[id]/route.ts - SÄKER VERSION som matchar upload
+// app/api/download/[id]/route.ts - FIXED VERSION
 
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile, access } from 'fs/promises';
@@ -7,10 +7,11 @@ import crypto from 'crypto';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // FIXED: Added Promise<>
 ) {
   try {
-    const fileId = params.id;
+    // FIXED: Await the params
+    const { id: fileId } = await params;
     console.log('🔍 Säker download för fil:', fileId);
     
     const uploadsDir = join(process.cwd(), 'uploads');

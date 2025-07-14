@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
             ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
             
             <h3>Your Files:</h3>
-            ${files.map(file => `
+            ${files.map((file: { name: string, size: number, shareUrl: string }) => `
               <div class="file-box">
                 <strong>${file.name}</strong><br>
                 Size: ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
