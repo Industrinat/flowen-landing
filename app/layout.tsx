@@ -1,4 +1,6 @@
 import { AuthProvider } from '@/hooks/useAuth'
+import { TeamProvider } from '@/hooks/useTeam'
+// import { TeamsDebug } from '@/components/TeamsDebug' 
 import React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -32,9 +34,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
+          <TeamProvider>
+            <Header />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+            {/* <TeamsDebug /> */}
+          </TeamProvider>
         </AuthProvider>
       </body>
     </html>

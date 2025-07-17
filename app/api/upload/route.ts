@@ -1,13 +1,35 @@
-// app/api/upload/route.ts - KOMPLETT SÄKER VERSION
+// app/api/upload/route.ts - JWT-SÄKRAD VERSION
 
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import crypto from 'crypto';
+import { verifyAccessToken } from '@/lib/auth/jwt';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔐 Startar säker upload process...');
+    console.log('🔐 Startar JWT-säkrad upload process...');
+    
+    // JWT AUTH CHECK
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'No authentication token provided' },
+        { status: 401 }
+      );
+    }
+
+    const user = verifyAccessToken(token);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Invalid authentication token' },
+        { status: 401 }
+      );
+    }
+
+    console.log('✅ User authenticated:', user.email);
     
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -16,22 +38,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
     
-    // Skapa säker filstruktur
+    // Skapa säker filstruktur MED användarinfo
     const uploadsDir = join(process.cwd(), 'uploads');
     await mkdir(uploadsDir, { recursive: true });
     
-    // Generera säkert filnamn
+    // Generera säkert filnamn med teamId
     const timestamp = Date.now();
     const randomId = Math.random().toString().substring(2);
-    const fileName = `default-team-${timestamp}-${randomId}`;
+    const fileName = `${user.teamId || 'default'}-${timestamp}-${randomId}`;
     
-    console.log('📁 Skapar fil:', fileName);
+    console.log('📁 Skapar fil för team:', user.teamId || 'default');
+    console.log('📁 Filnamn:', fileName);
     
     // Läs fil-data
     const fileBuffer = Buffer.from(await file.arrayBuffer());
     console.log('📦 Original filstorlek:', fileBuffer.length);
     
-    // STARK KRYPTERING
+    // STARK KRYPTERING (din befintliga logik)
     const encryptionResult = encryptFile(fileBuffer);
     console.log('🔐 Fil krypterad, krypterad storlek:', encryptionResult.encryptedData.length);
     
@@ -40,7 +63,7 @@ export async function POST(request: NextRequest) {
     await writeFile(filePath, encryptionResult.encryptedData);
     console.log('✅ Krypterad fil sparad:', filePath);
     
-    // Skapa KOMPLETT metadata med krypteringsnyckel
+    // Skapa KOMPLETT metadata med JWT user info
     const metadata = {
       encryptionKey: encryptionResult.key,
       iv: encryptionResult.iv,
@@ -52,10 +75,11 @@ export async function POST(request: NextRequest) {
       mimeType: file.type,
       uploadTime: new Date().toISOString(),
       encryptedFilename: fileName,
-      uploadedBy: 'admin-user-id',
-      userEmail: 'admin@flowen.se',
-      teamId: 'default-team',
-      version: '2.0'
+      // JWT USER INFO
+      uploadedBy: user.userId,
+      userEmail: user.email,
+      teamId: user.teamId || 'default-team',
+      version: '3.0-jwt'
     };
     
     // Spara metadata
@@ -63,7 +87,7 @@ export async function POST(request: NextRequest) {
     await writeFile(metaPath, JSON.stringify(metadata, null, 2));
     console.log('📋 Metadata sparad:', metaPath);
     
-    // Verifiera dekryptering
+    // Verifiera dekryptering (din befintliga logik)
     try {
       const testDecrypted = decryptFile(
         encryptionResult.encryptedData,
@@ -84,7 +108,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
     
-    // Returnera säker response
+    // Returnera säker response med user info
     return NextResponse.json({
       success: true,
       encrypted: true,
@@ -95,7 +119,9 @@ export async function POST(request: NextRequest) {
       size: fileBuffer.length,
       encryptedSize: encryptionResult.encryptedData.length,
       uploadTime: metadata.uploadTime,
-      version: '2.0'
+      uploadedBy: user.email,
+      teamId: user.teamId || 'default-team',
+      version: '3.0-jwt'
     });
     
   } catch (error) {
@@ -107,7 +133,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// 🔐 SÄKER KRYPTERINGSFUNKTION
+// 🔐 SÄKER KRYPTERINGSFUNKTION (din befintliga)
 function encryptFile(fileBuffer: Buffer) {
   const algorithm = 'aes-256-gcm';
   const key = crypto.randomBytes(32);
@@ -134,7 +160,7 @@ function encryptFile(fileBuffer: Buffer) {
   };
 }
 
-// 🔓 DEKRYPTERINGSFUNKTION för verifiering
+// 🔓 DEKRYPTERINGSFUNKTION för verifiering (din befintliga)
 function decryptFile(encryptedData: Buffer, keyBase64: string, ivBase64: string, authTagBase64: string): Buffer {
   const algorithm = 'aes-256-gcm';
   

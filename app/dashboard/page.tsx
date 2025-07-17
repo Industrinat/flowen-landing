@@ -1,22 +1,30 @@
 'use client'
 
-import { useRequireAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
-import { Upload, FolderOpen, LayoutGrid, FileText, Users, Shield, TrendingUp, Clock } from 'lucide-react'
+import { Upload, FolderOpen, LayoutGrid, FileText, Users, Shield, TrendingUp, Clock, Target } from 'lucide-react'
+import { TeamSwitcher } from '@/components/TeamSwitcher'
+import { TeamFiles } from '@/components/TeamFiles'
+import { CRMModule } from '@/components/CRMCustomers'
 
 export default function DashboardPage() {
-  const { user, isLoading } = useRequireAuth()
+  const { user, isLoading } = useAuth()
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Laddar...</div>
+        <div className="text-lg">Loading...</div>
       </div>
     )
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Team Switcher */}
+      <div className="mb-8">
+        <TeamSwitcher />
+      </div>
+      
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
@@ -86,21 +94,44 @@ export default function DashboardPage() {
           </div>
         </Link>
 
-        {/* Team Management (Fas 2) */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 opacity-75">
-          <div className="flex items-center mb-4">
-            <div className="p-2 bg-gray-100 rounded-lg mr-3">
-              <Users className="h-6 w-6 text-gray-500" />
+        {/* CRM Dashboard */}
+        <Link href="/crm" className="group" aria-label="Open CRM dashboard with customer management and deal pipeline">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 hover:border-purple-300 hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <div className="p-2 bg-purple-100 rounded-lg mr-3 group-hover:bg-purple-200 transition-colors">
+                  <Target className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">CRM Dashboard</h3>
+              </div>
+              <span className="text-xs bg-purple-200 text-purple-900 px-2 py-0.5 rounded-full flex items-center gap-1">
+                ⚙️ Automated
+              </span>
             </div>
-            <h3 className="text-lg font-semibold text-gray-600">Team Management</h3>
+            <p className="text-gray-600 text-sm mb-4">
+              Manage customers, deals and pipeline with automation
+            </p>
+            <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+              <div className="bg-purple-50 rounded p-2 text-center border border-purple-100">
+                <div className="font-semibold text-purple-900">0</div>
+                <div className="text-purple-600">Customers</div>
+              </div>
+              <div className="bg-green-50 rounded p-2 text-center border border-green-100">
+                <div className="font-semibold text-green-900">0</div>
+                <div className="text-green-600">Active deals</div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-purple-600 group-hover:text-purple-700 text-sm font-medium">
+                Open CRM →
+              </div>
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                Live data
+              </div>
+            </div>
           </div>
-          <p className="text-gray-500 text-sm mb-4">
-            Manage team members and permissions
-          </p>
-          <div className="flex items-center text-gray-400 text-sm">
-            Coming in Phase 2...
-          </div>
-        </div>
+        </Link>
       </div>
 
       {/* Stats Cards */}
@@ -144,6 +175,16 @@ export default function DashboardPage() {
           <div className="text-2xl font-bold text-gray-900 mb-1">-</div>
           <p className="text-xs text-gray-500">No activity yet</p>
         </div>
+      </div>
+
+      {/* Team Files */}
+      <div className="mb-8">
+        <TeamFiles />
+      </div>
+
+      {/* CRM Customers */}
+      <div className="mb-8">
+        <CRMModule />
       </div>
 
       {/* Recent Activity & Quick Start */}

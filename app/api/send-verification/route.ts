@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     
     if (type === 'trial') {
       // Trial verification
-      verificationUrl = `${getBaseUrl()}/verify-trial?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+     verificationUrl = `${getBaseUrl()}/api/verify-trial?token=${verificationToken}&email=${encodeURIComponent(email)}`;
       emailSubject = '🎉 Activate your Flowen 14-day free trial';
       emailContent = createTrialEmailContent(email, verificationUrl);
     } else {

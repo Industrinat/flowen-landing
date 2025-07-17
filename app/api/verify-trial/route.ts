@@ -12,8 +12,9 @@ export async function GET(request: NextRequest) {
     
     // Validera input
     if (!token || !email) {
+      const baseUrl = process.env.NODE_ENV === 'production' ? 'https://flowen.eu' : 'http://localhost:3000';
       return NextResponse.redirect(
-        new URL('/?error=invalid-verification-link', request.url)
+        new URL('/?error=invalid-verification-link', baseUrl)
       );
     }
     
@@ -25,8 +26,9 @@ export async function GET(request: NextRequest) {
     
     if (!isValidToken) {
       console.log('❌ Invalid or expired token');
+      const baseUrl = process.env.NODE_ENV === 'production' ? 'https://flowen.eu' : 'http://localhost:3000';
       return NextResponse.redirect(
-        new URL('/?error=invalid-or-expired-link', request.url)
+        new URL('/?error=invalid-or-expired-link', baseUrl)
       );
     }
     
@@ -38,8 +40,9 @@ export async function GET(request: NextRequest) {
       // TODO: Markera token som använd i databas
       // await markTokenAsUsed(token);
       
-      // Redirect till startsida med success state
-      const successUrl = new URL('/', request.url);
+      // Redirect till startsida med success state - FIXED VERSION
+      const baseUrl = process.env.NODE_ENV === 'production' ? 'https://flowen.eu' : 'http://localhost:3000';
+      const successUrl = new URL('/', baseUrl);
       successUrl.searchParams.set('trial-activated', 'true');
       successUrl.searchParams.set('email', email);
       
@@ -47,15 +50,17 @@ export async function GET(request: NextRequest) {
       
     } catch (activationError) {
       console.error('❌ Trial activation failed:', activationError);
+      const baseUrl = process.env.NODE_ENV === 'production' ? 'https://flowen.eu' : 'http://localhost:3000';
       return NextResponse.redirect(
-        new URL('/?error=activation-failed', request.url)
+        new URL('/?error=activation-failed', baseUrl)
       );
     }
     
   } catch (error) {
     console.error('❌ Verify trial error:', error);
+    const baseUrl = process.env.NODE_ENV === 'production' ? 'https://flowen.eu' : 'http://localhost:3000';
     return NextResponse.redirect(
-      new URL('/?error=verification-error', request.url)
+      new URL('/?error=verification-error', baseUrl)
     );
   }
 }

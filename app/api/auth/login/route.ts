@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
 import { generateTokens, setRefreshTokenCookie } from '@/lib/auth/jwt'
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
     
-    // TODO: Ersätt med databas-lookup senare
-    // För nu, behåll din existerande användare
     if (email === 'admin@flowen.se' && password === 'flowen123') {
       const tokens = generateTokens({
         userId: 'admin-user-id',
@@ -25,7 +22,6 @@ export async function POST(request: NextRequest) {
       })
       
       setRefreshTokenCookie(response, tokens.refreshToken)
-      
       return response
     }
     

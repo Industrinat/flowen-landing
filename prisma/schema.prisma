@@ -1,0 +1,218 @@
+// prisma/schema.prisma - KOMPLETT FLOWEN SCHEMA MED CRM
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  
+  // Team relations
+  teams        TeamMember[]
+  createdFiles File[]
+  
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Team {
+  id       String       @id @default(cuid())
+  name     String
+  slug     String       @unique
+  
+  // Relations
+  members  TeamMember[]
+  files    File[]
+  projects Project[]
+  
+  // CRM Relations
+  customers   Customer[]
+  deals       Deal[]
+  activities  Activity[]
+  
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model TeamMember {
+  id     String @id @default(cuid())
+  userId String
+  teamId String
+  role   String @default("member") // owner, admin, member
+  
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  joinedAt DateTime @default(now())
+  
+  @@unique([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+}
+
+model File {
+  id               String    @id @default(cuid())
+  teamId           String
+  uploadedById     String
+  
+  // File info
+  fileName         String
+  originalName     String
+  mimeType         String
+  size             BigInt
+  storagePath      String
+  
+  // Encryption
+  isEncrypted      Boolean   @default(true)
+  encryptionKey    String    // Base64 encoded key
+  iv               String?   // Initialization vector
+  authTag          String?   // Authentication tag
+  
+  // Preview support (för senare)
+  previewAvailable Boolean   @default(false)
+  previewPath      String?
+  previewGeneratedAt DateTime?
+  
+  // CRM Relations
+  customerId       String?
+  dealId           String?
+  customer         Customer? @relation("CustomerFiles", fields: [customerId], references: [id], onDelete: SetNull)
+  deal             Deal?     @relation("DealFiles", fields: [dealId], references: [id], onDelete: SetNull)
+  
+  // Relations
+  team             Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  uploadedBy       User      @relation(fields: [uploadedById], references: [id])
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  @@index([teamId])
+  @@index([uploadedById])
+  @@index([createdAt])
+  @@index([customerId])
+  @@index([dealId])
+}
+
+model Project {
+  id          String  @id @default(cuid())
+  teamId      String
+  name        String
+  description String?
+  status      String  @default("active") // active, completed, archived
+  
+  // Relations
+  team        Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([teamId])
+}
+
+// CRM MODELS
+
+model Customer {
+  id          String   @id @default(cuid())
+  teamId      String
+  name        String
+  email       String?
+  phone       String?
+  company     String?
+  website     String?
+  address     String?
+  notes       String?
+  tags        String   @default("[]") // JSON string for SQLite
+  value       Float?
+  status      String   @default("prospect") // prospect, active, churned
+  
+  // Relationships
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  deals       Deal[]
+  files       File[]   @relation("CustomerFiles")
+  contacts    Contact[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([teamId])
+  @@index([email])
+  @@index([status])
+}
+
+model Deal {
+  id          String   @id @default(cuid())
+  teamId      String
+  customerId  String?
+  title       String
+  description String?
+  value       Float?
+  currency    String   @default("SEK")
+  stage       String   @default("prospect") // prospect, qualified, proposal, negotiation, won, lost
+  probability Int?     // 0-100%
+  closeDate   DateTime?
+  
+  // Relationships  
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  files       File[]   @relation("DealFiles")
+  activities  Activity[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([teamId])
+  @@index([stage])
+  @@index([closeDate])
+}
+
+model Contact {
+  id         String   @id @default(cuid())
+  customerId String
+  name       String
+  email      String?
+  phone      String?
+  role       String?  // "CEO", "CTO", "Purchaser", etc.
+  isPrimary  Boolean  @default(false)
+  
+  // Relationships
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@index([customerId])
+  @@index([email])
+}
+
+model Activity {
+  id         String   @id @default(cuid())
+  teamId     String
+  dealId     String?
+  customerId String?
+  type       String   // "call", "email", "meeting", "note", "file_shared"
+  title      String
+  description String?
+  dueDate    DateTime?
+  completed  Boolean  @default(false)
+  
+  // Relationships
+  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  deal       Deal?    @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@index([teamId])
+  @@index([type])
+  @@index([dueDate])
+  @@index([completed])
+}
