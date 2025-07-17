@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth.tsx';
 
 export default function Header() {
   const { user, logout, isLoading } = useAuth();
