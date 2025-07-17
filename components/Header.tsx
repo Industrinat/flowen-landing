@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '../hooks/useAuth.tsx';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Header() {
   const { user, logout, isLoading } = useAuth();
@@ -72,3 +72,4 @@ export default function Header() {
     </header>
   );
 }
+
