@@ -1,0 +1,5 @@
+{
+  "command-runner.commands": {
+    "🧪 Testa Command Runner": "echo Hej från Flowen!"
+  }
+}
