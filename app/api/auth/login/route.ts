@@ -5,6 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
     
+    // Demo credentials - samma som i login-sidan
     if (email === 'admin@flowen.se' && password === 'flowen123') {
       const tokens = generateTokens({
         userId: 'admin-user-id',
@@ -17,22 +18,25 @@ export async function POST(request: NextRequest) {
         accessToken: tokens.accessToken,
         user: {
           id: 'admin-user-id',
-          email: 'admin@flowen.se'
+          email: 'admin@flowen.se',
+          name: 'Admin User',
+          teamId: 'default-team'
         }
       })
       
+      // Sätt refresh token som httpOnly cookie
       setRefreshTokenCookie(response, tokens.refreshToken)
       return response
     }
     
     return NextResponse.json(
-      { error: 'Invalid credentials' },
+      { error: 'Fel e-post eller lösenord' },
       { status: 401 }
     )
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json(
-      { error: 'Login failed' },
+      { error: 'Inloggning misslyckades' },
       { status: 500 }
     )
   }
